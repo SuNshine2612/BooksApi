@@ -1,0 +1,94 @@
+﻿@model IEnumerable<BooksApi.Models.Test.CustomerTest>
+@*  Document !!
+    https://datatables.net/reference/option/ajax
+    Call back function after load success
+    https://stackoverflow.com/questions/15786572/call-a-function-in-success-of-datatable-ajax-call
+    https://stackoverflow.com/questions/5548893/jquery-datatables-delay-search-until-3-characters-been-typed-or-a-button-clicke
+*@
+
+<!-- DataTables -->
+<link rel="stylesheet" href="~/admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+<!-- DataTables -->
+<script src="~/admin/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/admin/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<script>
+    $(function () {
+        var myTable = $('#myTable').DataTable({
+            autoWidth: false,
+            responsive: true,
+            processing: true,
+            serverSide: true,
+            filter: true,
+            ajax: {
+                url: "/CustomerTest",
+                type: "POST",
+                datatype: "json",
+                async: true,
+                dataSrc: function (json) {
+                    return json.data;
+                },
+                error: function (xhr, error, code) {
+                    toastr.error(code);
+                }
+            },
+            initComplete: function (setting, json) {
+                // Load các hàm function dùng trong Customer ! Nếu gọi hàm đc định nghĩa trước, sẽ ko chạy đc !!
+                //$.getScript("/js/test/test_customer.js", function () { });
+
+                //when search DataTable, must have >= 3 chars !!
+                var $searchInput = $('div.dataTables_filter input');
+                $searchInput.unbind();
+                $searchInput.bind('keyup', function (e) {
+                    if (this.value.length >= 3) {
+                        myTable.search(this.value).draw();
+                    }
+                });
+            },
+            /*columnDefs: [{
+                "targets": [0],
+                "visible": false,
+                "searchable": false
+            }], // Remember, the first column is Id? ( targets = 0 ) Let’s hide it from the Datatable and not include it in the search. */
+            columns: [
+                { "data": "code", "name": "Code", "autoWidth": true },
+                { "data": "fullName", "name": "FullName", "autoWidth": true },
+                { "data": "email", "name": "Email", "autoWidth": true },
+                { "data": "phone", "name": "Phone", "autoWidth": true },
+                { "data": "company", "name": "Company", "autoWidth": true },
+                {
+                    "render": function (data, type, row) {
+                        // use actually Jquery, need define method delete, edit with datatable reload !!
+                        //return "<a href='#' class='btn btn-danger' onclick=DeleteCustomer('" + row.id + "'); ><i class='fas fa-trash-alt'></i></a>";
+                        // use MVC
+                        var html = '<div>';
+                        html += '<a class="btn btn-warning btn-sm btn-flat text-white" onClick="showModalDialog(\'CustomerTest/AddOrEdit/' + row.id + '\',\'@BooksApi.Services.StaticVar.ActionUpdate\')" title="@BooksApi.Services.StaticVar.ActionUpdate"><i class="fas fa-pencil-alt"></i> </a>';
+                        html += '<form method="post" class="d-inline" onsubmit="return jQueryAjaxDelete(this)" action="CustomerTest/Delete/' + row.id + '" >';
+                        html += '<button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>';
+                        html += '</form>';
+                        html += '</div>';
+                        return html;
+                    }
+                },
+            ]
+        });
+
+    });
+</script>
+
+<table class="table table-hover table-striped" id="myTable">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(m => m.Code)</th>
+            <th>@Html.DisplayNameFor(m => m.FullName)</th>
+            <th>@Html.DisplayNameFor(m => m.Email)</th>
+            <th>@Html.DisplayNameFor(m => m.Phone)</th>
+            <th>@Html.DisplayNameFor(m => m.Company)</th>
+            <th></th>
+        </tr>
+    </thead>
+</table>

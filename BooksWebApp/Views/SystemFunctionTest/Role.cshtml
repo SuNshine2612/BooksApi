@@ -1,0 +1,62 @@
+﻿@model FunctionByGroup
+@{
+    ViewData["Title"] = "Phân Quyền";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Begin card -->
+                <div class="card card-primary card-outline">
+                    <!-- Card header -->
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-edit"></i>
+                            @ViewData["Title"]
+                        </h3>
+                    </div>
+                    <!-- Card body-->
+                    <div class="card-body" id="view-all">
+                        <div class="form-group">
+                            <form asp-action="Role" method="post" onsubmit="return jQueryAjaxDelete(this)">
+                                <select style="width: 100%" name="group" class="form-control" asp-items="ViewBag.Group"></select>
+                            </form>
+                        </div>
+                        <div class="row">
+                            <div class="col-4 col-sm-3">
+                                <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab" role="tablist" aria-orientation="vertical">
+                                    <a class="nav-link active" id="vert-tabs-home-tab" data-toggle="pill" href="#vert-tabs-home" role="tab" aria-controls="vert-tabs-home" aria-selected="true">DS Chức Năng</a>
+                                    <a class="nav-link" id="vert-tabs-profile-tab" data-toggle="pill" href="#vert-tabs-profile" role="tab" aria-controls="vert-tabs-profile" aria-selected="false">DS Menu</a>
+                                    <a class="nav-link" id="vert-tabs-messages-tab" data-toggle="pill" href="#vert-tabs-messages" role="tab" aria-controls="vert-tabs-messages" aria-selected="false">DS Người Dùng</a>
+                                </div>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                @await Html.PartialAsync("_ViewRole") 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End card -->
+            </div>
+        </div>
+    </div>
+</div>

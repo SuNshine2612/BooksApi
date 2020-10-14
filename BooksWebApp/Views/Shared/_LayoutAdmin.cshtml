@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>@ViewData["Title"] - TMS Admin</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="~/admin/plugins/fontawesome-free/css/all.min.css">
+    <!-- pace-progress -->
+    <link rel="stylesheet" href="~/admin/plugins/pace-progress/themes/blue/pace-theme-flat-top.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="~/admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+
+    @RenderSection("myCss", required: false)
+
+    <!-- Toastr -->
+    <link rel="stylesheet" href="~/admin/plugins/toastr/toastr.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/admin/dist/css/adminlte.min.css">
+    <!-- jQuery -->
+    <script src="~/admin/plugins/jquery/jquery.min.js"></script>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed text-sm">
+
+    <div class="wrapper">
+
+        <!-- Navbar: _HeaderLayoutAdmin-->
+        <partial name="_HeaderLayoutAdmin" />
+
+        <!-- Main sidebar: _LeftLayoutAdmin -->
+        @await Html.PartialAsync("_LeftLayoutAdmin")
+
+        <!-- Content page -->
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+
+        <!-- Control sidebar: _RightLayoutAdmin-->
+        <partial name="_RightLayoutAdmin" />
+
+        <!-- Modal AddOrEdit -->
+        <partial name="_ModalAddOrEdit" />
+
+        <!-- Footer -->
+        <partial name="_FooterLayoutAdmin" />
+    </div>
+
+
+    <!-- Bootstrap 4 -->
+    <script src="~/admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- overlayScrollbars -->
+    <script src="~/admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <!-- pace-progress -->
+    <script src="~/admin/plugins/pace-progress/pace.min.js"></script>
+
+    @RenderSection("myScripts", required: false)
+
+    <!-- Toastr -->
+    <script src="~/admin/plugins/toastr/toastr.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/admin/dist/js/adminlte.min.js"></script>
+    <script src="~/js/myScripts.js"></script>
+
+    <script type="text/javascript">
+        $(document).ajaxStart(function () {
+            Pace.restart()
+        });
+
+        $(document).ready(function () {
+            $("#form-modal").on('hide.bs.modal', function () {
+                //console.log('The modal is about to be hidden.');
+                $('#form-modal .modal-body').html('');
+                $('#form-modal .modal-title').html('');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+﻿@model BooksApi.Models.Test.UserTest
+@{ Layout = null; }
+
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- Form Horizontal-->
+        <form class="form-horizontal" asp-action="AddOrEdit" asp-route-id="@Model.Id" onsubmit="return jQueryAjaxPost(this);">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="card-body">
+                <div class="form-group row">
+                    <label asp-for="Code" class="col-sm-2 col-form-label"></label>
+                    <div class="col-sm-10">
+                        <input class="form-control" asp-for="Code">
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label asp-for="FullName" class="col-sm-2 col-form-label"></label>
+                    <div class="col-sm-10">
+                        <input class="form-control" asp-for="FullName">
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                </div>
+                @if (String.IsNullOrEmpty(Model.Id))
+                {
+                    <div class="form-group row">
+                        <label asp-for="Password" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input class="form-control" asp-for="Password">
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+                <div class="form-group row">
+                    <label asp-for="Email" class="col-sm-2 col-form-label"></label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                            </div>
+                            <input class="form-control" asp-for="Email">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-right btn-flat" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> @BooksApi.Services.StaticVar.ButtonClose</button>
+                <button type="submit" class="btn btn-primary btn-save btn-flat" data-save="modal"><i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> @BooksApi.Services.StaticVar.ButtonSave</button>
+            </div>
+        </form>
+    </div>
+</div>

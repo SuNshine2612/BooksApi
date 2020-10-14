@@ -1,0 +1,76 @@
+﻿@model BooksApi.Models.Test.MenuTest
+@{ Layout = null; }
+
+
+<script>
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
+    });
+</script>
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- Form Not Horizontal-->
+        <form asp-action="AddOrEdit" asp-route-id="@Model.Id" onsubmit="return jQueryAjaxPost(this);">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Sort" />
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Code" class="control-label"></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">#</div>
+                                </div>
+                                <input asp-for="Code" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Url" class="control-label"></label>
+                            <input asp-for="Url" class="form-control" />
+                            <span asp-validation-for="Url" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Icon" class="control-label"></label>
+                            <input asp-for="Icon" class="form-control" />
+                            <span asp-validation-for="Icon" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label asp-for="Parent" class="control-label"></label>
+                            <select style="width: 100%" asp-for="Parent" class="form-control select2bs4" asp-items="ViewBag.Parent"></select>
+                            <span asp-validation-for="Parent" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-right btn-flat" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> @BooksApi.Services.StaticVar.ButtonClose</button>
+                <button type="submit" class="btn btn-primary btn-save btn-flat" data-save="modal"><i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> @BooksApi.Services.StaticVar.ButtonSave</button>
+            </div>
+        </form>
+    </div>
+</div>

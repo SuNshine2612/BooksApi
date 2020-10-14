@@ -1,0 +1,80 @@
+﻿@model IEnumerable<BooksApi.Models.Test.SystemFunctionTest>
+<!-- DataTables -->
+<link rel="stylesheet" href="~/admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+<!-- DataTables -->
+<script src="~/admin/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/admin/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<script>
+    $(function () {
+        var myTable = $('#myTable').DataTable({
+            autoWidth: false,
+            responsive: true,
+            processing: true,
+            serverSide: true,
+            filter: true,
+            ajax: {
+                url: "/SystemFunctionTest",
+                type: "POST",
+                datatype: "json",
+                async: true,
+                dataSrc: function (json) {
+                    return json.data;
+                },
+                error: function (xhr, error, code) {
+                    toastr.error(code);
+                }
+            },
+            initComplete: function (setting, json) {
+                //when search DataTable, must have >= 3 chars !!
+                var $searchInput = $('div.dataTables_filter input');
+                $searchInput.unbind();
+                $searchInput.bind('keyup', function (e) {
+                    if (this.value.length >= 3) {
+                        myTable.search(this.value).draw();
+                    }
+                });
+            },
+            columnDefs: [{
+                "targets": [0],
+                "visible": false,
+                "searchable": false
+            }], // Remember, the first column is code? ( targets = 0 ) Let’s hide it from the Datatable and not include it in the search.
+            columns: [
+                { "data": "code", "name": "Code", "autoWidth": true },
+                { "data": "controllerName", "name": "ControllerName", "autoWidth": true },
+                { "data": "actionName", "name": "ActionName", "autoWidth": true },
+                { "data": "description", "name": "Description", "autoWidth": true },
+                {
+                    "render": function (data, type, row) {
+                        // use MVC
+                        var html = '<div>';
+                        html += '<a class="btn btn-warning btn-sm btn-flat text-white" onClick="showModalDialog(\'SystemFunctionTest/AddOrEdit/' + row.id + '\',\'@BooksApi.Services.StaticVar.ActionUpdate\')" title="@BooksApi.Services.StaticVar.ActionUpdate"><i class="fas fa-pencil-alt"></i> </a>';
+                        html += '<form method="post" class="d-inline" onsubmit="return jQueryAjaxDelete(this)" action="SystemFunctionTest/Delete/' + row.id + '" >';
+                        html += '<button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>';
+                        html += '</form>';
+                        html += '</div>';
+                        return html;
+                    }
+                },
+            ]
+        });
+
+    });
+</script>
+
+<table class="table table-hover table-striped" id="myTable">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(m => m.Code)</th>
+            <th>@Html.DisplayNameFor(m => m.ControllerName)</th>
+            <th>@Html.DisplayNameFor(m => m.ActionName)</th>
+            <th>@Html.DisplayNameFor(m => m.Description)</th>
+            <th></th>
+        </tr>
+    </thead>
+</table>

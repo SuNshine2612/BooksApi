@@ -1,0 +1,57 @@
+﻿@model IEnumerable<BooksApi.Models.Test.GroupTest>
+@{ int i = 0;}
+
+<!-- DataTables -->
+<link rel="stylesheet" href="~/admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+<!-- DataTables -->
+<script src="~/admin/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/admin/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<script>
+    $(function () {
+        $('#myTable').DataTable({
+            "autoWidth": false,
+            "responsive": true
+        });
+    });
+</script>
+
+<table class="table table-hover table-striped" id="myTable">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>@Html.DisplayNameFor(m => m.Code)</th>
+            <th>@Html.DisplayNameFor(m => m.Name)</th>
+            <th>@Html.DisplayNameFor(m => m.Desc)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            i++;
+            if (item.IsActive)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>@Html.DisplayFor(m => item.Code)</td>
+                    <td>@Html.DisplayFor(m => item.Name)</td>
+                    <td>@Html.DisplayFor(m => item.Desc)</td>
+                    <td>
+                        <div>
+                            <a class="btn btn-warning btn-sm btn-flat text-white" title="@BooksApi.Services.StaticVar.ActionUpdate" onclick="showModalDialog('@Url.Action("AddOrEdit","GroupTest", new {id = item.Id}, Context.Request.Scheme)','@BooksApi.Services.StaticVar.ActionUpdate')"><i class="fas fa-pencil-alt"></i> </a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" onsubmit="return jQueryAjaxDelete(this)" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>
+                            </form>
+                        </div>
+
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
