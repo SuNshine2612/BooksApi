@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BooksApi.Models.Global;
 using BooksApi.Models.Test;
@@ -16,10 +17,14 @@ namespace GroupTestsApi.Controllers
     public class GroupsTestController : ControllerBase
     {
         private readonly GenericService<GroupTest> _serviceGroupTest;
+        private readonly GenericService<SystemFunctionTest> _serviceSysFuctionTest;
+        private readonly GenericService<MenuTest> _serviceMenuTest;
 
         public GroupsTestController()
         {
             _serviceGroupTest = new GenericService<GroupTest>();
+            _serviceSysFuctionTest = new GenericService<SystemFunctionTest>();
+            _serviceMenuTest = new GenericService<MenuTest>();
         }
 
         #region Get list & detail
@@ -118,6 +123,124 @@ namespace GroupTestsApi.Controllers
         public async Task<bool> ExistsCode(string id)
         {
             return await _serviceGroupTest.CheckIssetByID(id);
+        }
+        #endregion
+
+        #region Role 
+        /// <summary>
+        /// Phân quyền chức năng vào group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="functionId"></param>
+        /// <returns></returns>
+        [HttpPost("SetPermission/{groupId}/{functionId}")]
+        public async Task<ActionResult> SetPermission(string groupId, string functionId)
+        {
+            try
+            {
+                if(!(await _serviceGroupTest.GetByIDAsync(groupId) is GroupTest memberGroup))
+                {
+                    return BadRequest("Nhóm quyền không tồn tại hoặc đã bị thay đổi.");
+                }
+
+                if(!(await _serviceSysFuctionTest.GetByIDAsync(functionId) is SystemFunctionTest systemFunction))
+                {
+                    return BadRequest("Mã Chức năng không tồn tại hoặc đã bị thay đổi.");
+                }
+
+                List<string> permission;
+                if (memberGroup.ArrFunctionId != null && memberGroup.ArrFunctionId.Length > 0)
+                    permission = new List<string>(memberGroup.ArrFunctionId);
+                else
+                    permission = new List<string>();
+
+                if (permission == null || permission.Count == 0)
+                {
+                    permission.Add(functionId);
+                }
+                else
+                {
+                    //nếu có thì xóa quyền
+                    if (permission.Contains(functionId))
+                    {
+                        permission.Remove(functionId);
+                    }
+                    //nếu chưa có thì thêm vào
+                    else
+                    {
+                        permission.Add(functionId);
+                    }
+                }
+                memberGroup.ArrFunctionId = permission.Distinct().ToArray();
+                //lưu DB
+                var updateResult = await _serviceGroupTest.UpdateAsync(memberGroup.Id, memberGroup);
+                if (updateResult.IsAcknowledged)
+                    return Ok();
+                else
+                    return BadRequest("Gán quyền thất bại");
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Phân quyền menu vào group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="menuId"></param>
+        /// <returns></returns>
+        [HttpPost("SetMenu/{groupId}/{menuId}")]
+        public async Task<ActionResult> SetMenu(string groupId, string menuId)
+        {
+            try
+            {
+                if (!(await _serviceGroupTest.GetByIDAsync(groupId) is GroupTest memberGroup))
+                {
+                    return BadRequest("Nhóm quyền không tồn tại hoặc đã bị thay đổi.");
+                }
+
+                if (!(await _serviceMenuTest.GetByIDAsync(menuId) is MenuTest menuTest))
+                {
+                    return BadRequest("Mã menu không tồn tại hoặc đã bị thay đổi.");
+                }
+
+                List<string> permission;
+                if (memberGroup.ArrMenuId != null && memberGroup.ArrMenuId.Length > 0)
+                    permission = new List<string>(memberGroup.ArrMenuId);
+                else
+                    permission = new List<string>();
+
+                if (permission == null || permission.Count == 0)
+                {
+                    permission.Add(menuId);
+                }
+                else
+                {
+                    //nếu có thì xóa
+                    if (permission.Contains(menuId))
+                    {
+                        permission.Remove(menuId);
+                    }
+                    //nếu chưa có thì thêm vào
+                    else
+                    {
+                        permission.Add(menuId);
+                    }
+                }
+                memberGroup.ArrMenuId = permission.Distinct().ToArray();
+                //lưu DB
+                var updateResult = await _serviceGroupTest.UpdateAsync(memberGroup.Id, memberGroup);
+                if (updateResult.IsAcknowledged)
+                    return Ok();
+                else
+                    return BadRequest("Gán menu thất bại");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         #endregion
     }

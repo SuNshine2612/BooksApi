@@ -2,6 +2,24 @@
 @{
     ViewData["Title"] = "Phân Quyền";
 }
+@section myScripts{
+    <script>
+        function changeGroup(selectObject) {
+            // set Value group code into Form UserChange ( tab 3 )
+            console.log(selectObject.value);
+            //$("#groupIdChangeUser").val(selectObject.value);
+            // Submit Form
+            $("#formChangeGroup").submit();
+        }
+        // RESPONSIVE DATATABLES IN MANY TABS
+        @*https://datatables.net/examples/api/tabs_and_scrolling.html*@
+        $(document).ready(function () {
+            $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+                $.fn.DataTable.tables({ visible: true, api: true }).columns.adjust();
+            });
+        });
+    </script>
+}
 
 <!-- Content Header (Page header) -->
 <div class="content-header">
@@ -35,10 +53,10 @@
                         </h3>
                     </div>
                     <!-- Card body-->
-                    <div class="card-body" id="view-all">
+                    <div class="card-body">
                         <div class="form-group">
-                            <form asp-action="Role" method="post" onsubmit="return jQueryAjaxDelete(this)">
-                                <select style="width: 100%" name="group" class="form-control" asp-items="ViewBag.Group"></select>
+                            <form asp-action="Role" method="post" onsubmit="return jQueryAjaxPost(this)" id="formChangeGroup">
+                                <select style="width: 100%" name="group" id="myGroup" onchange="changeGroup(this)" class="form-control" asp-items="ViewBag.Group"></select>
                             </form>
                         </div>
                         <div class="row">
@@ -49,8 +67,8 @@
                                     <a class="nav-link" id="vert-tabs-messages-tab" data-toggle="pill" href="#vert-tabs-messages" role="tab" aria-controls="vert-tabs-messages" aria-selected="false">DS Người Dùng</a>
                                 </div>
                             </div>
-                            <div class="col-8 col-sm-9">
-                                @await Html.PartialAsync("_ViewRole") 
+                            <div class="col-8 col-sm-9" id="view-all">
+                                @await Html.PartialAsync("_ViewRole", Model)
                             </div>
                         </div>
                     </div>

@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace BooksWebApp.Controllers
 {
     [Authorize]
-    public class SystemFunctionTestController : Controller
+    public class SystemFunctionTestController : BaseController
     {
         [HttpGet]
         public IActionResult Index()
@@ -156,7 +156,7 @@ namespace BooksWebApp.Controllers
 
 
         /* List Functions for ROLE */
-
+        #region List Functions for ROLE 
         [NonAction]
         private async Task<dynamic> SetViewData(string idSelected = null)
         {
@@ -184,12 +184,167 @@ namespace BooksWebApp.Controllers
             
             if (!String.IsNullOrEmpty(group))
             {
-                return View();
+                // Check detail group isset
+                if (await ApiHelper<GroupTest>.RunGetAsync($"{StaticVar.ApiUrlGroups}/GetDetails/{group}") is GroupTest DataGroup)
+                {
+                    List<UserTest> listUserSelected = await ApiHelper<List<UserTest>>.RunGetAsync($"{StaticVar.ApiUrlUsers}/GetListUserByGroup/{DataGroup.Code}");
+
+                    List<MenuTest> _temp = new List<MenuTest>();
+                    _temp = GetTrees(ref _temp, await ApiHelper<List<MenuTest>>.RunGetAsync(StaticVar.ApiUrlMenus));
+
+                    FunctionByGroup functionByGroup = new FunctionByGroup
+                    {
+                        // get list system functions full
+                        ListSysFuntions = await ApiHelper<List<SystemFunctionTest>>.RunGetAsync(StaticVar.ApiUrlSystemFunctions),
+                        // get list menus full (ordered by parent and child )
+                        ListMenus = _temp,
+                        // set selected to switch bootstrap and dual selectlist user
+                        ArrSystemFunctionsSelected = DataGroup.ArrFunctionId,
+                        ArrMenusSelected = DataGroup.ArrMenuId,
+                        ArrUsersAll = new MultiSelectList(
+                            await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers),
+                            "Code",
+                            "FullName",
+                            listUserSelected.Select(x => x.Code)
+                        )
+                    };
+
+                    return Json(new
+                    {
+                        isValid = true,
+                        html = MyViewHelper.RenderRazorViewToString(this, "_ViewRole", functionByGroup),
+                        mes = StaticVar.MessageOkLoadData,
+                        type = "success"
+                    });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        isValid = false,
+                        html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = StaticVar.MessageNotFound })
+                    });
+                }
             }
             else
             {
-                return View(new FunctionByGroup());
+                return Json(new
+                {
+                    isValid = true,
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewRole"),
+                    mes = "Chưa Chọn Nhóm",
+                    type = "warning"
+                });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeFunction(string group, string id)
+        {
+            try
+            {
+                if(!String.IsNullOrEmpty(group) && !String.IsNullOrEmpty(id))
+                {
+                    await ApiHelper<GroupTest>.RunPostAsync($"{StaticVar.ApiUrlGroups}/SetPermission/{group}/{id}");
+                    return Json(new{ isValid = true });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        isValid = false,
+                        mes = StaticVar.MessageNotFound,
+                        type = "warning"
+                    });
+                }
+            }
+            catch(Exception ex)
+            {
+                return Json(new
+                {
+                    isValid = false,
+                    mes = ex.Message,
+                    type = "error"
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeMenu(string group, string id)
+        {
+            try
+            {
+                if (!String.IsNullOrEmpty(group) && !String.IsNullOrEmpty(id))
+                {
+                    await ApiHelper<GroupTest>.RunPostAsync($"{StaticVar.ApiUrlGroups}/SetMenu/{group}/{id}");
+                    return Json(new { isValid = true });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        isValid = false,
+                        mes = StaticVar.MessageNotFound,
+                        type = "warning"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    isValid = false,
+                    mes = ex.Message,
+                    type = "error"
+                });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeUser(IFormCollection _collection)
+        {
+            if(_collection != null)
+            {
+                var group = _collection["groupId"];
+                if (!String.IsNullOrEmpty(group))
+                {
+                    var selectedUsers = _collection["listUsers"].ToList();
+                    if(selectedUsers.Count > 0)
+                    {
+                        try
+                        {
+                            await ApiHelper<dynamic>.RunPostAsync($"{StaticVar.ApiUrlUsers}/SetGroup/{group}", selectedUsers);
+                            return Json(new
+                            {
+                                isValid = true,
+                                mes = StaticVar.MessageOk
+                            });
+
+                        }
+                        catch(Exception ex)
+                        {
+                            return Json(new
+                            {
+                                isValid = false,
+                                mes = ex.Message,
+                                type = "error"
+                            });
+                        }
+                    }
+                    else
+                    {
+                        return Json(new
+                        {
+                            isValid = false,
+                            mes = "Chưa chọn người",
+                            type = "warning"
+                        });
+                    }
+                }
+            }
+            return View();
+        }
+        #endregion
     }
 }

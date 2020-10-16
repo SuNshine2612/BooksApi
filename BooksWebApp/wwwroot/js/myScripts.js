@@ -23,7 +23,13 @@ jQueryAjaxPost = form => {
             processData: false,
             success: function (res) {
                 if (res.isValid) {
-                    toastr.success('Đã lưu dữ liệu thành công !');
+                    if (res.mes === undefined) {
+                        toastr.success('Đã lưu dữ liệu thành công !');
+                    }
+                    else {
+                        if (res.type == "success") { toastr.success(res.mes); }
+                        else if (res.type == "warning") { toastr.warning(res.mes); }
+                    }
                     $('#form-modal').modal('hide');
 
                     if (res.html !== undefined) {
@@ -35,7 +41,10 @@ jQueryAjaxPost = form => {
                     $('#form-modal .modal-title').html('');
                 }
                 else {
-                    $('#form-modal .modal-body').html(res.html);
+                    if (res.html !== undefined) {
+                        $('#form-modal .modal-body').html(res.html);
+                    }
+                    
                 }
             },
             error: function (err) {

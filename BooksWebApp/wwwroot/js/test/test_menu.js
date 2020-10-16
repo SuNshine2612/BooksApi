@@ -1,7 +1,7 @@
 ﻿
-var myController = {
+var menuController = {
     init: function () {
-        myController.registerEvent();
+        menuController.registerEvent();
     },
     registerEvent: function () {
         $("input[type=text].sort").blur(function () {
@@ -10,4 +10,4 @@ var myController = {
     }
 };
 
-myController.init();
+menuController.init();

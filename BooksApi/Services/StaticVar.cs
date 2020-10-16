@@ -28,6 +28,8 @@ namespace BooksApi.Services
         public static readonly string ActionCreateNew = "Thêm Mới";
         public static readonly string ActionUpdate = "Cập Nhật";
         public static readonly string ActionDelete = "Xóa";
+        public static readonly string ActionYes = "Có";
+        public static readonly string ActionNo = "Không";
 
         public static readonly string ButtonSave = "Lưu";
         public static readonly string ButtonClose = "Đóng";
@@ -35,6 +37,7 @@ namespace BooksApi.Services
         public static readonly string MessageOk = "Đã Lưu Thành Công";
         public static readonly string MessageNotFound = "Không Tìm Thấy Đối Tượng";
         public static readonly string MessageCodeDuplicated = "Code Bị Trùng";
+        public static readonly string MessageOkLoadData = "Tải Thành Công";
 
         // Define Key Claims !!
         public static readonly string ClaimObjectId = "ObjectId";

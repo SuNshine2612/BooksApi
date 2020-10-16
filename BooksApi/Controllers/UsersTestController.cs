@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 
 namespace BooksApi.Controllers
 {
@@ -41,6 +42,18 @@ namespace BooksApi.Controllers
         {
             UserTest data = await _serviceUserTest.GetByIDAsync(id);
             return data;
+        }
+
+        /// <summary>
+        /// Get list user by group Id
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+
+        [HttpGet("GetListUserByGroup/{groupId}")]
+        public async Task<List<UserTest>> GetListUserByGroup(string groupId)
+        {
+            return await _serviceUserTest._collection.Find(user => user.ArrMemberGroup.Contains(groupId)).ToListAsync();
         }
         #endregion
 
@@ -207,6 +220,33 @@ namespace BooksApi.Controllers
 
             return claims;
  
+        }
+        #endregion
+
+        #region ROLE GROUP
+        [HttpPost("SetGroup/{groupId}")]
+        public async Task<IActionResult> SetGroup(string groupId, [FromBody] List<string> userSelected)
+        {
+            try
+            {
+                // Danh sách User tìm đc theo userSelected
+                var listUsers = _serviceUserTest.SearchMatchArray_NotAsync("Code", userSelected);
+                // Gán danh sách
+                listUsers.ForEach(x =>
+                {
+                    x.ArrMemberGroup = (x.ArrMemberGroup == null || x.ArrMemberGroup.Length == 0) ? (new string[] { groupId }.ToArray()) : (x.ArrMemberGroup.Append(groupId).Distinct().ToArray());
+                });
+                // Cập nhật danh sách
+                if (listUsers.Count > 0)
+                {
+                    await _serviceUserTest.UpdateManyAsync(listUsers).ConfigureAwait(false);
+                }
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
         #endregion
     }

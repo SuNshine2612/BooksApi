@@ -1,13 +1,174 @@
 ﻿@model FunctionByGroup
+<!-- Bootstrap Switch -->
+<script src="~/admin/plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="~/admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<!-- DataTables -->
+<script src="~/admin/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/admin/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<!-- Bootstrap4 Duallistbox -->
+<link rel="stylesheet" href="~/admin/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+<!-- Bootstrap4 Duallistbox -->
+<script src="~/admin/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+
+<!-- Scripts use to Role -->
+<script src="~/js/test/test_role.js"></script>
+
+<script>
+    $(function () {
+        // Bootstrap Switch before DataTale init
+        $("input[data-bootstrap-switch]").each(function () {
+            $(this).bootstrapSwitch('state', $(this).prop('checked'));
+        });
+
+        // Init DataTables
+        $('#myTableSystemFunction').DataTable({
+            "autoWidth": false,
+            "responsive": true
+        });
+        // List menu no need order !!! Because, we order by parent & child
+        $('#myTableMenus').DataTable({
+            "autoWidth": false,
+            "responsive": true,
+            "order": false
+        });
+
+        // Set Default Tab Active After Reload Ajax Function
+        $('#vert-tabs-tab').find("a.active").removeClass("active");
+        $('#vert-tabs-home-tab').addClass("active");
+
+        // Bootstrap Duallistbox
+        $('.duallistbox').bootstrapDualListbox({
+            nonSelectedListLabel: 'Tất Cả',
+            selectedListLabel: 'Người Dùng Thuộc Về Nhóm',
+        })
+    });
+</script>
 
 <div class="tab-content" id="vert-tabs-tabContent">
+    <!-- Danh Sách Chức Năng -->
     <div class="tab-pane text-left fade show active" id="vert-tabs-home" role="tabpanel" aria-labelledby="vert-tabs-home-tab">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin malesuada lacus ullamcorper dui molestie, sit amet congue quam finibus. Etiam ultricies nunc non magna feugiat commodo. Etiam odio magna, mollis auctor felis vitae, ullamcorper ornare ligula. Proin pellentesque tincidunt nisi, vitae ullamcorper felis aliquam id. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin id orci eu lectus blandit suscipit. Phasellus porta, ante et varius ornare, sem enim sollicitudin eros, at commodo leo est vitae lacus. Etiam ut porta sem. Proin porttitor porta nisl, id tempor risus rhoncus quis. In in quam a nibh cursus pulvinar non consequat neque. Mauris lacus elit, condimentum ac condimentum at, semper vitae lectus. Cras lacinia erat eget sapien porta consectetur.
+        <table class="table table-hover table-striped" id="myTableSystemFunction">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(m => m.ListSysFuntions.GetEnumerator().Current.Code)</th>
+                    <th>@Html.DisplayNameFor(m => m.ListSysFuntions.GetEnumerator().Current.ControllerName)</th>
+                    <th>@Html.DisplayNameFor(m => m.ListSysFuntions.GetEnumerator().Current.ActionName)</th>
+                    <th>@Html.DisplayNameFor(m => m.ListSysFuntions.GetEnumerator().Current.Description)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.ListSysFuntions.Count > 0)
+                {
+                    foreach (var item in Model.ListSysFuntions)
+                    {
+                        if (item.IsActive)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(m => item.Code)</td>
+                                <td>@Html.DisplayFor(m => item.ControllerName)</td>
+                                <td>@Html.DisplayFor(m => item.ActionName)</td>
+                                <td>@Html.DisplayFor(m => item.Description)</td>
+                                <td id="active_@item.Code" data-url="@Url.Action("ChangeFunction")">
+                                    @if (Model.ArrSystemFunctionsSelected != null && Model.ArrSystemFunctionsSelected.Contains(item.Code))
+                                    {
+                                        <input type="checkbox"
+                                               name="my-checkbox"
+                                               class="activeSysFuntion"
+                                               checked
+                                               data-bootstrap-switch
+                                               data-on-text="ON"
+                                               data-off-text="OFF">
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox"
+                                               name="my-checkbox"
+                                               class="activeSysFuntion"
+                                               data-bootstrap-switch
+                                               data-on-text="ON"
+                                               data-off-text="OFF">
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
     </div>
+
+    <!-- Danh Sách Menu -->
     <div class="tab-pane fade" id="vert-tabs-profile" role="tabpanel" aria-labelledby="vert-tabs-profile-tab">
-        Mauris tincidunt mi at erat gravida, eget tristique urna bibendum. Mauris pharetra purus ut ligula tempor, et vulputate metus facilisis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Maecenas sollicitudin, nisi a luctus interdum, nisl ligula placerat mi, quis posuere purus ligula eu lectus. Donec nunc tellus, elementum sit amet ultricies at, posuere nec nunc. Nunc euismod pellentesque diam.
+        <table class="table table-hover table-striped" id="myTableMenus">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(m => m.ListMenus.GetEnumerator().Current.Code)</th>
+                    <th>@Html.DisplayNameFor(m => m.ListMenus.GetEnumerator().Current.Name)</th>
+                    <th>@Html.DisplayNameFor(m => m.ListMenus.GetEnumerator().Current.Url)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.ListMenus.Count > 0)
+                {
+                    foreach (var item in Model.ListMenus)
+                    {
+                        if (item.IsActive)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(m => item.Code)</td>
+                                <td>@Html.DisplayFor(m => item.Name)</td>
+                                <td>@Html.DisplayFor(m => item.Url)</td>
+                                <td id="active_@item.Code" data-url="@Url.Action("ChangeMenu")">
+                                    @if (Model.ArrMenusSelected != null && Model.ArrMenusSelected.Contains(item.Code))
+                                    {
+                                        <input type="checkbox"
+                                               name="my-checkbox"
+                                               class="activeMenu"
+                                               checked
+                                               data-bootstrap-switch
+                                               data-on-text="ON"
+                                               data-off-text="OFF">
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox"
+                                               name="my-checkbox"
+                                               class="activeMenu"
+                                               data-bootstrap-switch
+                                               data-on-text="ON"
+                                               data-off-text="OFF">
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
     </div>
+
+    <!-- Danh Sách Người Dùng -->
     <div class="tab-pane fade" id="vert-tabs-messages" role="tabpanel" aria-labelledby="vert-tabs-messages-tab">
-        Morbi turpis dolor, vulputate vitae felis non, tincidunt congue mauris. Phasellus volutpat augue id mi placerat mollis. Vivamus faucibus eu massa eget condimentum. Fusce nec hendrerit sem, ac tristique nulla. Integer vestibulum orci odio. Cras nec augue ipsum. Suspendisse ut velit condimentum, mattis urna a, malesuada nunc. Curabitur eleifend facilisis velit finibus tristique. Nam vulputate, eros non luctus efficitur, ipsum odio volutpat massa, sit amet sollicitudin est libero sed ipsum. Nulla lacinia, ex vitae gravida fermentum, lectus ipsum gravida arcu, id fermentum metus arcu vel metus. Curabitur eget sem eu risus tincidunt eleifend ac ornare magna.
+        <div class="form-group">
+            @if (Model != null && Model.ArrUsersAll != null)
+            {
+                <form method="post" asp-action="ChangeUser" onsubmit="return jQueryAjaxPostChangeUser(this);">
+                    <select class="duallistbox" name="listUsers" multiple="multiple" style="width: 100%" asp-items="Model.ArrUsersAll">
+                    </select>
+                    <!--<input type="hidden" name="groupId" id="groupIdChangeUser" value="" /> -->
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-save btn-flat float-right"><i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> @BooksApi.Services.StaticVar.ButtonSave</button>
+                </form> 
+                <div class="clearfix"></div>
+            }
+        </div>
     </div>
 </div>

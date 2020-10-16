@@ -102,7 +102,7 @@ namespace BooksWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var result = await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlUsers}/{id}");
+            await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlUsers}/{id}");
             return Json(new
             {
                 html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers))

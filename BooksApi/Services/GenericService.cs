@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -247,7 +248,10 @@ namespace BooksApi.Services
             BulkWriteResult result;
             if (clientSession == null)
                 result = await _collection.BulkWriteAsync(updates).ConfigureAwait(false);
-            result = await _collection.BulkWriteAsync(clientSession, updates).ConfigureAwait(false);
+            else
+            {
+                result = await _collection.BulkWriteAsync(clientSession, updates).ConfigureAwait(false);
+            }
             return result.ModifiedCount.ToString();
         }
 
@@ -539,6 +543,62 @@ namespace BooksApi.Services
             return resjs;
             // https://stackoverflow.com/questions/58072703/jsonresultobject-causes-the-collection-type-newtonsoft-json-linq-jtoken-is
             // use return Json(dynamic type)
+        }
+
+        /// <summary>
+        /// Tìm danh sách khớp với điều kiện 1 array truyền vào
+        /// </summary>
+        /// <param name="docPropertyName"></param>
+        /// <param name="lstValue"></param>
+        /// <param name="filter"></param>
+        /// <param name="sort"></param>
+        /// <returns></returns>
+        public async Task<List<T>> SearchMatchArray(string docPropertyName, List<string> lstValue, FilterDefinition<T> filter = null, SortDefinition<T> sort = null)
+        {
+            //reset
+            filterFinal = filterGlobal;
+            filterFinal &= Builders<T>.Filter.In(docPropertyName, lstValue.Distinct());
+
+            if (filter != null)
+                filterFinal &= filter;
+            if (sort != null)
+                return await _collection.Find(filterFinal).Sort(sort).ToListAsync().ConfigureAwait(false);
+            return await _collection.Find(filterFinal).ToListAsync().ConfigureAwait(false);
+        }
+        /// <summary>
+        /// Tìm danh sách khớp với điều kiện 1 array truyền vào
+        /// </summary>
+        /// <param name="docPropertyName"></param>
+        /// <param name="lstValue"></param>
+        /// <param name="filter"></param>
+        /// <param name="sort"></param>
+        /// <returns></returns>
+        public List<T> SearchMatchArray_NotAsync(string docPropertyName, List<string> lstValue, FilterDefinition<T> filter = null, SortDefinition<T> sort = null)
+        {
+            //reset
+            filterFinal = filterGlobal;
+            filterFinal &= Builders<T>.Filter.In(docPropertyName, lstValue.Distinct());
+
+            if (filter != null)
+                filterFinal &= filter;
+            if (sort != null)
+                return _collection.Find(filterFinal).Sort(sort).ToList();
+            return _collection.Find(filterFinal).ToList();
+        }
+
+        /// <summary>
+        /// Lấy danh sách T theo điều kiện tìm kiếm
+        /// </summary>
+        /// <param name="documentPropertyName">DocumentPropertyName tên cột tìm dạng string</param>
+        /// <param name="searchValue">SearchValue giá trị để tìm dạng string</param>
+        /// <returns></returns>
+        public async Task<List<T>> Search(string documentPropertyName, string searchValue)
+        {
+            //reset
+            searchValue = WebUtility.UrlDecode(searchValue);
+            filterFinal = filterGlobal;
+            filterFinal &= Builders<T>.Filter.Eq(documentPropertyName, searchValue);
+            return await _collection.Find(filterFinal).ToListAsync().ConfigureAwait(false);
         }
         #endregion
     }
