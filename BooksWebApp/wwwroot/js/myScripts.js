@@ -44,7 +44,9 @@ jQueryAjaxPost = form => {
                     if (res.html !== undefined) {
                         $('#form-modal .modal-body').html(res.html);
                     }
-                    
+                    if (res.mes !== undefined) {
+                        toastr.error(res.mes);
+                    }
                 }
             },
             error: function (err) {

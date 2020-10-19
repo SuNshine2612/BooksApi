@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using BooksApi.Models.Global;
+﻿using BooksApi.Models.Global;
 using BooksApi.Models.Test;
 using BooksApi.Models.TMS;
 using BooksApi.Services;
@@ -14,7 +6,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BooksApi.Controllers
 {
@@ -23,10 +24,12 @@ namespace BooksApi.Controllers
     public class UsersTestController : ControllerBase
     {
         private readonly GenericService<UserTest> _serviceUserTest;
+        private readonly GenericService<GroupTest> _serviceGroupTest;
 
         public UsersTestController()
         {
             _serviceUserTest = new GenericService<UserTest>();
+            _serviceGroupTest = new GenericService<GroupTest>();
         }
 
         #region Get list & detail
@@ -34,6 +37,23 @@ namespace BooksApi.Controllers
         public async Task<List<UserTest>> Get()
         {
             return await _serviceUserTest.GetAllAsync();
+        }
+
+        /// <summary>
+        /// Lấy 1  thành viên dựa vào Id
+        /// </summary>
+        /// <param name="id">Object Id dạng string</param>
+        /// <returns></returns>
+        // GET: api/Users/id
+        [HttpGet("{id}")]
+        public async Task<UserTest> Get(string id)
+        {
+            UserTest user = await _serviceUserTest.GetByIDAsync(id).ConfigureAwait(false);
+            if (user != null)
+            {
+                user.Password = String.Empty;
+            }
+            return user;
         }
 
         [Route("[action]/{id}")]
@@ -115,6 +135,38 @@ namespace BooksApi.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Đăng nhập
+        /// </summary>
+        /// <param name="user">Object User</param>
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] Authenticate user)
+        {
+            if (user == null)
+                return BadRequest(StaticVar.MessageNotFound);
+            //get user from DB
+            UserTest dbUser = await _serviceUserTest.GetByIDAsync(user.Code).ConfigureAwait(false);
+            if (dbUser == null)
+                return BadRequest(StaticVar.MessageNotFound);
+            //kiểm tra password cũ có đúng không
+            if (CustomPasswordHasher.VerifyPassword(dbUser.Password, user.OldPassword))
+            {
+                var passwordHashed = CustomPasswordHasher.HashPassword(user.Password);
+                //đúng thì cho đổi password
+                BsonDocument objBSON = new BsonDocument
+                    {
+                        { "Password",  passwordHashed }
+                    };
+                await _serviceUserTest.UpdateCustomizeFieldByIdAsync(dbUser.Id, objBSON);
+                return Ok("Đổi password thành công");
+            }
+            else
+            {
+                //sai thì báo lỗi
+                return BadRequest("User hoặc mật khẩu cũ không hợp lệ");
             }
         }
         #endregion
@@ -212,14 +264,43 @@ namespace BooksApi.Controllers
         [NonAction]
         private IEnumerable<Claim> GenerateUserClaims(UserTest user)
         {
-            List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim(StaticVar.ClaimObjectId, user.Id));
-            claims.Add(new Claim(StaticVar.ClaimCode, user.Code));
-            claims.Add(new Claim(StaticVar.ClaimEmail, user.Email));
-            claims.Add(new Claim(StaticVar.ClaimName, user.FullName));
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(StaticVar.ClaimObjectId, user.Id), // ObjectID
+                new Claim(StaticVar.ClaimCode, user.Code), // Username
+                new Claim(StaticVar.ClaimEmail, user.Email),
+                new Claim(StaticVar.ClaimName, user.FullName)
+            };
+
+            //tìm memberGroup theo user
+            if (user.ArrMemberGroup != null && user.ArrMemberGroup.Length > 0)
+            {
+                //1. Lấy danh sách member group mà user này thuộc về
+                List<string> listGroupsBelongToUser = new List<string>(user.ArrMemberGroup);
+                List<GroupTest> memberGroups = _serviceGroupTest.SearchMatchArray_NotAsync("Code", listGroupsBelongToUser);
+
+                //2. Xử lý trùng code trong ArrFunctionId và MenuID của group, xong gán vào Claims
+                string[] strArrFunction = Array.Empty<string>();
+                string[] strArrMenu = Array.Empty<string>();
+
+                foreach (var member in memberGroups)
+                {
+                    if (member.ArrFunctionId != null && member.ArrFunctionId.Length > 0)
+                    {
+                        //gom nhóm các chức năng lại, loại bỏ trùng (nếu muốn giữ trùng thì dùng Concat thay cho Union)
+                        strArrFunction = strArrFunction.Union(member.ArrFunctionId).ToArray();
+                        strArrMenu = strArrMenu.Union(member.ArrMenuId).ToArray();
+                    }
+                }
+
+                claims.Add(new Claim(StaticVar.ClaimArrFunction, string.Join(",", strArrFunction)));
+                claims.Add(new Claim(StaticVar.ClaimArrMenu, string.Join(",", strArrMenu)));
+                // Gán thêm Groups của User trong trường hợp cần kiểm tra
+                claims.Add(new Claim(StaticVar.ClaimArrMemberGroup, string.Join(",", user.ArrMemberGroup)));
+            }
 
             return claims;
- 
+
         }
         #endregion
 

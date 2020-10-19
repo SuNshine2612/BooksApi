@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,6 +34,7 @@ namespace BooksWebApp.Helper
             viewResult.View.RenderAsync(viewContext);
             return sw.GetStringBuilder().ToString();
         }
+
     }
 
     /*
@@ -51,6 +53,75 @@ namespace BooksWebApp.Helper
             {
                 filterContext.HttpContext.Response.Redirect("/");
             }
+        }
+    }
+
+    // https://stackoverflow.com/questions/20410623/how-to-add-active-class-to-html-actionlink-in-asp-net-mvc
+    [HtmlTargetElement("li", Attributes = "active-when")]
+    public class LiTagHelper : TagHelper
+    {
+        public string ActiveWhen { get; set; }
+
+        [ViewContext]
+        [HtmlAttributeNotBound]
+        public ViewContext ViewContextData { get; set; }
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            if (ActiveWhen == null)
+                return;
+
+            var targetController = ActiveWhen.Split("/")[1];
+            var targetAction = ActiveWhen.Split("/")[2];
+
+            var currentController = ViewContextData.RouteData.Values["controller"].ToString();
+            var currentAction = ViewContextData.RouteData.Values["action"].ToString();
+
+            if (currentController.Equals(targetController) && currentAction.Equals(targetAction))
+            {
+                if (output.Attributes.ContainsName("class"))
+                {
+                    output.Attributes.SetAttribute("class", $"{output.Attributes["class"].Value} active");
+                }
+                else
+                {
+                    output.Attributes.SetAttribute("class", "active");
+                }
+            }
+        }
+    }
+
+    public static class Utilities
+    {
+        public static bool IsActive(this HtmlHelper html,
+                                      string control,
+                                      string action)
+        {
+            var routeData = html.ViewContext.RouteData;
+
+            var routeAction = (string)routeData.Values["action"];
+            var routeControl = (string)routeData.Values["controller"];
+
+            // both must match
+            var returnActive = control == routeControl &&
+                               action == routeAction;
+            return returnActive;
+            //return returnActive ? "active" : "";
+        }
+
+        public static string IsSelected(this IHtmlHelper htmlHelper,
+            string controllers, 
+            string actions,
+            string cssClass = "selected")
+        {
+            string currentAction = htmlHelper.ViewContext.RouteData.Values["action"] as string;
+            string currentController = htmlHelper.ViewContext.RouteData.Values["controller"] as string;
+
+            IEnumerable<string> acceptedActions = (actions ?? currentAction).Split(',');
+            IEnumerable<string> acceptedControllers = (controllers ?? currentController).Split(',');
+
+            return acceptedActions.Contains(currentAction) && acceptedControllers.Contains(currentController) ?
+                cssClass : String.Empty;
         }
     }
 }

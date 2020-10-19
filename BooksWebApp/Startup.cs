@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using Microsoft.Net.Http.Headers;
 using AppContext = BooksWebApp.Helper.AppContext;
 
 namespace BooksWebApp
@@ -27,6 +27,7 @@ namespace BooksWebApp
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation()
                 .AddNewtonsoftJson(); // Very important to use return Json(dynamic type)
+                
 
             // HttpSession
             services.AddHttpContextAccessor();
@@ -37,6 +38,10 @@ namespace BooksWebApp
                 options.Cookie.IsEssential = true;
             });
             services.AddDistributedMemoryCache();
+
+            // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
+            // Add response cache
+            services.AddResponseCaching();
 
             // Authenticate use CookieAuthentication 
             services.AddAuthentication("CookieAuthentication")
@@ -63,7 +68,17 @@ namespace BooksWebApp
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-            app.UseStaticFiles();
+            // Cache to save static files
+            // https://andrewlock.net/adding-cache-control-headers-to-static-files-in-asp-net-core/
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                OnPrepareResponse = ctx =>
+                {
+                    const int durationInSeconds = 60 * 60 * 24;
+                    ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=" + durationInSeconds;
+                    ctx.Context.Response.Headers[HeaderNames.Expires] = DateTime.UtcNow.AddYears(1).ToString("R");
+                }
+            });
 
             app.UseRouting();
 
@@ -73,6 +88,23 @@ namespace BooksWebApp
             // Http Session
             app.UseSession();
             AppContext.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
+
+            // Http Response cache
+            // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
+            app.UseResponseCaching();
+            app.Use(async (context, next) =>
+            {
+                context.Response.GetTypedHeaders().CacheControl =
+                    new CacheControlHeaderValue()
+                    {
+                        Public = bool.Parse(Configuration["ResponseCache:Headers:Public"]),
+                        MaxAge = TimeSpan.FromSeconds(double.Parse(Configuration["ResponseCache:Headers:MaxAge"]))
+                    };
+                context.Response.Headers[HeaderNames.Vary] =
+                    new string[] { "Accept-Encoding" };
+
+                await next();
+            });
 
             app.UseEndpoints(endpoints =>
             {

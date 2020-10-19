@@ -1,0 +1,60 @@
+{
+  "RECORDS": [
+    {
+      "_id": "5f5b00bf0032000083002887",
+      "Author": "admin6",
+      "Category": "Computers",
+      "Code": "book_1",
+      "CreatedBy": "",
+      "CreatedOn": "15/4/2020 04:31:03.919",
+      "IsActive": "true",
+      "Name": "Design Patterns",
+      "Price": "54.93",
+      "Status": "0",
+      "UpdatedBy": "admin6",
+      "UpdatedOn": "6/10/2020 07:08:06.136"
+    },
+    {
+      "_id": "5f5b00bf0032000083002888",
+      "Author": "admin6",
+      "Category": "Computer",
+      "Code": "book_2",
+      "CreatedBy": "",
+      "CreatedOn": "15/4/2020 04:31:03.919",
+      "IsActive": "true",
+      "Name": "Clean Code",
+      "Price": "43.15",
+      "Status": "0",
+      "UpdatedBy": "admin6",
+      "UpdatedOn": "6/10/2020 07:07:56.435"
+    },
+    {
+      "_id": "5f687fe08c7014aec4a154cd",
+      "Author": "admin6",
+      "Category": "Romance",
+      "Code": "book_3",
+      "CreatedBy": "",
+      "CreatedOn": "21/9/2020 10:26:39.44",
+      "IsActive": "true",
+      "Name": "Gone Of The Wind",
+      "Price": "12.5",
+      "Status": "0",
+      "UpdatedBy": "",
+      "UpdatedOn": "22/9/2020 00:56:00.266"
+    },
+    {
+      "_id": "5f754c23e87791fc6eb380b8",
+      "Author": "minhmi",
+      "Category": "Tiểu thuyết, Trinh thám",
+      "Code": "book_4",
+      "CreatedBy": "admin6",
+      "CreatedOn": "1/10/2020 03:25:23.647",
+      "IsActive": "true",
+      "Name": "Sherlock Homles",
+      "Price": "20.58",
+      "Status": "0",
+      "UpdatedBy": "admin6",
+      "UpdatedOn": "1/10/2020 03:35:06.503"
+    }
+  ]
+}

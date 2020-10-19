@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using BooksApi.Models.Global;
 using BooksApi.Models.Test;
@@ -27,7 +28,25 @@ namespace BooksApi.Controllers
         [HttpGet]
         public async Task<List<MenuTest>> Get()
         {
-            return await _serviceMenuTest.GetAllAsync();
+            // admin_tms thì load hết, ko thì kiểm tra trong token, lấy ra ds MenuCode !
+            ClaimsPrincipal claimPrincipal = HttpContext.User;
+            if (claimPrincipal.Identity.IsAuthenticated)
+            {
+                var userId = UserClaim.UserId ?? "anonymous";
+                if(userId.Equals("admin_tms", StringComparison.OrdinalIgnoreCase)){
+                    return await _serviceMenuTest.GetAllAsync();
+                }
+                else
+                {
+                    var arrMenuCode = claimPrincipal.FindFirst(StaticVar.ClaimArrMenu).Value;
+                    if (!String.IsNullOrEmpty(arrMenuCode))
+                    {
+                        return await _serviceMenuTest.SearchMatchArray("Code", arrMenuCode.Split(",").ToList());
+                    }
+                }
+            }
+            return null;
+            
         }
 
         [Route("[action]/{id}")]

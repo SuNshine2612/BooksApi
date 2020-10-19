@@ -1,0 +1,46 @@
+{
+  "RECORDS": [
+    {
+      "_id": "5f7c3bbc1330000076004b34",
+      "ArrMemberGroup": "[ \"member\" ]",
+      "Code": "minhmi",
+      "CreatedBy": "",
+      "CreatedOn": "22/9/2020 18:17:15.036",
+      "Email": "sda@gmail.com",
+      "FullName": "Ralph Johnson",
+      "IsActive": "true",
+      "Password": "DWSBMrti4C9sUR/65kbHDg==b573ae34699ce3ec6572b2c9635a62b4",
+      "Status": "0",
+      "UpdatedBy": "",
+      "UpdatedOn": "23/9/2020 04:04:06.051"
+    },
+    {
+      "_id": "5f7c3bbc1330000076004b35",
+      "ArrMemberGroup": "[ \"member\", \"admin\" ]",
+      "Code": "admin6",
+      "CreatedBy": "",
+      "CreatedOn": "22/9/2020 23:33:30.816",
+      "Email": "admin@uilogistics.vn",
+      "FullName": "Robert C. Martin",
+      "IsActive": "true",
+      "Password": "DWSBMrti4C9sUR/65kbHDg==b573ae34699ce3ec6572b2c9635a62b4",
+      "Status": "0",
+      "UpdatedBy": "",
+      "UpdatedOn": "23/9/2020 03:26:53.683"
+    },
+    {
+      "_id": "5f7c3f699704939bc4359183",
+      "ArrMemberGroup": "",
+      "Code": "admin_tms",
+      "CreatedBy": "",
+      "CreatedOn": "6/10/2020 09:56:57.794",
+      "Email": "anhminh2612@gmail.com",
+      "FullName": "Đường Anh Minh",
+      "IsActive": "true",
+      "Password": "xO0mBl5HS3uKWrIVGov/ow==dc85252d1798a9b494e8c8d69c7792d4",
+      "Status": "0",
+      "UpdatedBy": "",
+      "UpdatedOn": "16/10/2020 08:56:23.912"
+    }
+  ]
+}

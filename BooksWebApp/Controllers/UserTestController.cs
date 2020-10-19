@@ -109,6 +109,75 @@ namespace BooksWebApp.Controllers
             });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ChangePass(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+                return View(new Authenticate());
+            else
+            {
+                try
+                {
+                    var _data = await ApiHelper<Authenticate>.RunGetAsync($"{StaticVar.ApiUrlUsers}/{id}");
+                    if (_data == null)
+                    {
+                        return NotFound();
+                    }
+                    return View(_data);
+                }
+                catch(Exception ex)
+                {
+                    return Json(new
+                    {
+                        isValid = false,
+                        html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message })
+                    });
+                }
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePass(Authenticate data, IFormCollection _collection)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check password correct
+                if(_collection != null && _collection["ConfirmPassword"].Equals(data.Password))
+                {
+                    try
+                    {
+                        var result = await ApiHelper<string>.RunPostAsync($"{StaticVar.ApiUrlUsers}/ChangePassword", data);
+                        return Json(new { 
+                            isValid = true, 
+                            mes = result
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        return Json(new { 
+                            isValid = false,
+                            html = MyViewHelper.RenderRazorViewToString(this, "ChangePass", data ),
+                            mes = ex.Message
+                        });
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Xác nhận mật khẩu không khớp nhau !!");
+                    return Json(new
+                    {
+                        isValid = false,
+                        html = MyViewHelper.RenderRazorViewToString(this, "ChangePass", data)
+                    });
+                }
+            }
+            else
+            {
+                return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "ChangePass", data) });
+            }
+        }
+
 
         [AllowAnonymous]
         [HttpGet]
@@ -134,11 +203,13 @@ namespace BooksWebApp.Controllers
 
                     var FullName = tokenS.Claims.Where(c => c.Type == StaticVar.ClaimName).FirstOrDefault();
                     var Email = tokenS.Claims.Where(c => c.Type == StaticVar.ClaimEmail).FirstOrDefault();
+                    var Code = tokenS.Claims.Where(c => c.Type == StaticVar.ClaimCode).FirstOrDefault();
 
                     // save userClaim, not use SESSION !!
                     // https://www.c-sharpcorner.com/article/cookie-authentication-in-net-core-3-0/
                     var userClaims = new List<Claim>()
                     {
+                        new Claim(StaticVar.ClaimCode, Code?.Value),
                         new Claim(ClaimTypes.Name, FullName?.Value),
                         new Claim(ClaimTypes.Email, Email?.Value),
                         new Claim(StaticVar.SessionUserToken, _token)

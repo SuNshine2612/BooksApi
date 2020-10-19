@@ -1,0 +1,122 @@
+﻿@model MenuViewModel
+@using BooksWebApp.Helper
+
+@foreach (var item in Model.ListParent)
+{
+    if (Model.ListChild.Where(m => m.Parent == item.Code).Count() > 0)
+    {
+        <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+                <i class="nav-icon @item.Icon"></i>
+                <p>
+                    @item.Name
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                @foreach (var child in Model.ListChild)
+                {
+                    if (item.Code == child.Parent)
+                    {
+                        <li class="nav-item">
+                            <a href="@child.Url" class="nav-link">
+                                <i class="@child.Icon nav-icon"></i>
+                                <p>@child.Name</p>
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a href="@item.Url" class="nav-link">
+                <i class="nav-icon @item.Icon"></i>
+                <p>
+                    @item.Name
+                </p>
+            </a>
+        </li>
+    }
+}
+
+@*    Tham Khảo Mẫu Menu !
+<li class="nav-item has-treeview">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>
+            Hệ Thống
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="@Url.Action("Index", "MenuTest")" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Quản Lý Menu</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="@Url.Action("Index", "SystemFunctionTest")" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Quản Lý Chức Năng</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="@Url.Action("Index", "GroupTest")" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Quản Lý Nhóm Thành Viên</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="@Url.Action("Index", "UserTest")" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Quản Lý Người Dùng</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="@Url.Action("Role", "SystemFunctionTest")" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Phân Quyền</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
+<li class="nav-item has-treeview menu-open">
+    <a href="#" class="nav-link active">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>
+            Quản Lý
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="@Url.Action("Index", "Home")" class="nav-link active">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Quản Lý Sách</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="@Url.Action("Index", "CustomerTest")" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Quản Lý Khách Hàng</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
+<li class="nav-item">
+    <a href="@Url.Action("Logout", "UserTest")" class="nav-link">
+        <i class="nav-icon fas fa-th"></i>
+        <p>
+            Thoát
+            <span class="right badge badge-danger">New</span>
+        </p>
+    </a>
+</li>
+*@

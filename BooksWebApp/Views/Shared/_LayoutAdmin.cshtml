@@ -7,25 +7,24 @@
     <title>@ViewData["Title"] - TMS Admin</title>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="~/admin/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="~/admin/plugins/fontawesome-free/css/all.min.css" asp-append-version="true">
     <!-- pace-progress -->
-    <link rel="stylesheet" href="~/admin/plugins/pace-progress/themes/blue/pace-theme-flat-top.css">
+    <link rel="stylesheet" href="~/admin/plugins/pace-progress/themes/blue/pace-theme-flat-top.css" asp-append-version="true">
     <!-- overlayScrollbars -->
-    <link rel="stylesheet" href="~/admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <link rel="stylesheet" href="~/admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" asp-append-version="true">
 
     @RenderSection("myCss", required: false)
 
     <!-- Toastr -->
-    <link rel="stylesheet" href="~/admin/plugins/toastr/toastr.min.css">
+    <link rel="stylesheet" href="~/admin/plugins/toastr/toastr.min.css" asp-append-version="true">
     <!-- Theme style -->
-    <link rel="stylesheet" href="~/admin/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="~/admin/dist/css/adminlte.min.css" asp-append-version="true">
     <!-- jQuery -->
-    <script src="~/admin/plugins/jquery/jquery.min.js"></script>
+    <script src="~/admin/plugins/jquery/jquery.min.js" asp-append-version="true"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed text-sm">
 
     <div class="wrapper">
-
         <!-- Navbar: _HeaderLayoutAdmin-->
         <partial name="_HeaderLayoutAdmin" />
 
@@ -38,30 +37,35 @@
         </div>
 
         <!-- Control sidebar: _RightLayoutAdmin-->
-        <partial name="_RightLayoutAdmin" />
+        <cache expires-after="@TimeSpan.FromMinutes(5)">
+            <partial name="_RightLayoutAdmin" />
+        </cache>
 
         <!-- Modal AddOrEdit -->
         <partial name="_ModalAddOrEdit" />
 
         <!-- Footer -->
-        <partial name="_FooterLayoutAdmin" />
+        <cache expires-after="@TimeSpan.FromMinutes(5)">
+            <partial name="_FooterLayoutAdmin" />
+        </cache>
+
     </div>
 
 
     <!-- Bootstrap 4 -->
-    <script src="~/admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/admin/plugins/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <!-- overlayScrollbars -->
-    <script src="~/admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <script src="~/admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js" asp-append-version="true"></script>
     <!-- pace-progress -->
-    <script src="~/admin/plugins/pace-progress/pace.min.js"></script>
+    <script src="~/admin/plugins/pace-progress/pace.min.js" asp-append-version="true"></script>
 
     @RenderSection("myScripts", required: false)
 
     <!-- Toastr -->
-    <script src="~/admin/plugins/toastr/toastr.min.js"></script>
+    <script src="~/admin/plugins/toastr/toastr.min.js" asp-append-version="true"></script>
     <!-- AdminLTE App -->
-    <script src="~/admin/dist/js/adminlte.min.js"></script>
-    <script src="~/js/myScripts.js"></script>
+    <script src="~/admin/dist/js/adminlte.min.js"asp-append-version="true"></script>
+    <script src="~/js/myScripts.js" asp-append-version="true"></script>
 
     <script type="text/javascript">
         $(document).ajaxStart(function () {
@@ -74,6 +78,31 @@
                 $('#form-modal .modal-body').html('');
                 $('#form-modal .modal-title').html('');
             });
+        });
+
+        $(document).ready(function () {
+            const url = window.location;
+
+            $('ul.nav-sidebar a').filter(function () {
+                return this.href == url;
+            }).parent().addClass('active');
+
+            $('ul.nav-treeview a').filter(function () {
+                return this.href == url;
+            }).parentsUntil(".sidebar-menu > .nav-treeview").addClass('menu-open');
+
+            $('ul.nav-treeview a').filter(function () {
+                return this.href == url;
+            }).addClass('active');
+
+            $('li.has-treeview a').filter(function () {
+                return this.href == url;
+            }).addClass('active');
+
+            $('ul.nav-treeview a').filter(function () {
+                return this.href == url;
+            }).parentsUntil(".sidebar-menu > .nav-treeview").children(0).addClass('active');
+
         });
     </script>
 </body>

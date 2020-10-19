@@ -10,6 +10,7 @@ namespace BooksApi.Services
     {
         public static string CookiesName = "cookies_web_tms";
         public static string CookiesAuthenticate = "cookies_auth";
+        public static readonly string NameMenuActive = "Scheduler";
 
         // Key session !!
         [Display(Description = "Lưu token khi login")]
@@ -44,5 +45,8 @@ namespace BooksApi.Services
         public static readonly string ClaimCode = "Id";
         public static readonly string ClaimName = "FullName";
         public static readonly string ClaimEmail = "Email";
+        public static readonly string ClaimArrFunction = "ArrFunction";
+        public static readonly string ClaimArrMenu = "ArrMenu";
+        public static readonly string ClaimArrMemberGroup = "ArrMemberGroup";
     }
 }

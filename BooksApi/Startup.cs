@@ -97,8 +97,6 @@ namespace BooksApi
                             UserClaim.ObjectId = claimPrincipal.FindFirst(StaticVar.ClaimObjectId).Value;
                             UserClaim.UserId = claimPrincipal.FindFirst(StaticVar.ClaimCode).Value;
                             UserClaim.FullName = claimPrincipal.FindFirst(StaticVar.ClaimName).Value;
-                            //UserClaim.CompanyId = claimPrincipal.FindFirst("CompanyId").Value;
-                            //UserClaim.DeviceId = claimPrincipal.FindFirst("SerialNumber").Value ?? string.Empty;
                         }
 
                         return Task.CompletedTask;
