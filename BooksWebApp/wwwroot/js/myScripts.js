@@ -6,8 +6,12 @@
             $('#form-modal .modal-body').html(res);
             $('#form-modal .modal-title').html(title);
             $('#form-modal').modal('show');
+
+            if (!res.isValid && res.mes !== undefined) {
+                toastr.error(res.mes);
+            }
         },
-        error: function(){
+        error: function () {
             toastr.error('Không tìm thấy trang !');
         }
     })
@@ -71,7 +75,11 @@ jQueryAjaxDelete = form => {
                 processData: false,
                 success: function (res) {
                     $('#view-all').html(res.html);
-                    toastr.success('Đã xóa dữ liệu thành công !');
+                    if (res.isValid) toastr.success('Đã xóa dữ liệu thành công !');
+
+                    if (!res.isValid && res.mes !== undefined) {
+                        toastr.error(res.mes);
+                    }
                 },
                 error: function (err) {
                     console.log(err);

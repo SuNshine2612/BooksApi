@@ -21,15 +21,20 @@ namespace BooksWebApp.Controllers
         [NonAction]
         private async Task<dynamic> SetViewData(string idSelected = null)
         {
-            // select list parent menus !
-            List<MenuTest> parents = await ApiHelper<List<MenuTest>>.RunGetAsync(StaticVar.ApiUrlMenus);
-            parents = parents.Where(m => m.Parent == null || m.Parent == "").ToList();
-            parents.Insert(0, new MenuTest
+            try
             {
-                Code = "", Name = "-- Chọn menu cha"
-            });
-            ViewBag.Parent = new SelectList(parents, "Code", "Name", idSelected);
-            return ViewBag;
+                // select list parent menus !
+                List<MenuTest> parents = await ApiHelper<List<MenuTest>>.RunGetAsync(StaticVar.ApiUrlMenus);
+                parents = parents.Where(m => m.Parent == null || m.Parent == "").ToList();
+                parents.Insert(0, new MenuTest
+                {
+                    Code = "",
+                    Name = "-- Chọn menu cha"
+                });
+                ViewBag.Parent = new SelectList(parents, "Code", "Name", idSelected);
+                return ViewBag;
+            }
+            catch(Exception ex) { return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }); }
         }
 
         [NonAction]
@@ -53,7 +58,7 @@ namespace BooksWebApp.Controllers
             }
             catch(Exception ex)
             {
-                return Json(new { html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message });
             }
         }
 
@@ -68,12 +73,16 @@ namespace BooksWebApp.Controllers
             }  
             else
             {
-                if (!(await ApiHelper<MenuTest>.RunGetAsync($"{StaticVar.ApiUrlMenus}/GetDetails/{id}") is MenuTest _data))
+                try
                 {
-                    return NotFound();
+                    if (!(await ApiHelper<MenuTest>.RunGetAsync($"{StaticVar.ApiUrlMenus}/GetDetails/{id}") is MenuTest _data))
+                    {
+                        return NotFound();
+                    }
+                    await SetViewData(_data.Parent);
+                    return View(_data);
                 }
-                await SetViewData(_data.Parent);
-                return View(_data);
+                catch(Exception ex) { return Json(new { isValid = false, mes = ex.Message }); }
             }
         }
 
@@ -86,30 +95,33 @@ namespace BooksWebApp.Controllers
                 //Insert
                 if (String.IsNullOrEmpty(id))
                 {
-                    // check isset code ?
-                    if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlMenus}/ExistsCode/{data.Code}"))
+                    try
                     {
-                        ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
-                        await SetViewData(data.Parent);
-                        return Json(new
+                        // check isset code ?
+                        if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlMenus}/ExistsCode/{data.Code}"))
                         {
-                            isValid = false,
-                            html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
-                        });
-                    }
-                    else
-                    {
-                        try
-                        {
-                            MenuTest result = await ApiHelper<MenuTest>.RunPostAsync(StaticVar.ApiUrlMenus, data);
+                            ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
+                            await SetViewData(data.Parent);
+                            return Json(new
+                            {
+                                isValid = false,
+                                html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
+                            });
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            await SetViewData();
-                            return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            try
+                            {
+                                MenuTest result = await ApiHelper<MenuTest>.RunPostAsync(StaticVar.ApiUrlMenus, data);
+                            }
+                            catch (Exception ex)
+                            {
+                                await SetViewData();
+                                return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            }
                         }
                     }
-
+                    catch(Exception ex) { return Json(new { isValid = false, mes = ex.Message }); }
                 }
                 //Update
                 else
@@ -140,11 +152,15 @@ namespace BooksWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var result = await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlMenus}/{id}");
-            return Json(new
+            try
             {
-                html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<MenuTest>>.RunGetAsync(StaticVar.ApiUrlMenus))
-            });
+                await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlMenus}/{id}");
+                return Json(new
+                {
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<MenuTest>>.RunGetAsync(StaticVar.ApiUrlMenus))
+                });
+            }
+            catch(Exception ex) { return Json(new { isValid = false, mes = ex.Message }); }
         }
 
         [HttpPost, ActionName("Change")]

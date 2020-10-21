@@ -25,7 +25,14 @@ namespace BooksWebApp.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            return View(await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers));
+            try
+            {
+                return View(await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers));
+            }
+            catch(Exception ex)
+            {
+                return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -36,12 +43,16 @@ namespace BooksWebApp.Controllers
                 return View(new UserTest());
             else
             {
-                var _data = await ApiHelper<UserTest>.RunGetAsync($"{StaticVar.ApiUrlUsers}/GetDetails/{id}");
-                if (_data == null)
+                try
                 {
-                    return NotFound();
+                    var _data = await ApiHelper<UserTest>.RunGetAsync($"{StaticVar.ApiUrlUsers}/GetDetails/{id}");
+                    if (_data == null)
+                    {
+                        return NotFound();
+                    }
+                    return View(_data);
                 }
-                return View(_data);
+                catch(Exception ex) { return Json(new { isValid = false, mes = ex.Message }); }
             }
         }
 
@@ -54,28 +65,31 @@ namespace BooksWebApp.Controllers
                 //Insert
                 if (String.IsNullOrEmpty(id))
                 {
-                    // check isset username ?
-                    if(await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlUsers}/ExistsCode/{data.Code}"))
+                    try
                     {
-                        ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
-                        return Json(new
+                        // check isset username ?
+                        if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlUsers}/ExistsCode/{data.Code}"))
                         {
-                            isValid = false,
-                            html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
-                        });
-                    }
-                    else
-                    {
-                        try
-                        {
-                            UserTest result = await ApiHelper<UserTest>.RunPostAsync(StaticVar.ApiUrlUsers, data);
+                            ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
+                            return Json(new
+                            {
+                                isValid = false,
+                                html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
+                            });
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            try
+                            {
+                                UserTest result = await ApiHelper<UserTest>.RunPostAsync(StaticVar.ApiUrlUsers, data);
+                            }
+                            catch (Exception ex)
+                            {
+                                return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            }
                         }
                     }
-                    
+                    catch(Exception ex) { return Json(new { isValid = false, mes = ex.Message }); }
                 }
                 //Update
                 else
@@ -102,11 +116,15 @@ namespace BooksWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlUsers}/{id}");
-            return Json(new
+            try
             {
-                html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers))
-            });
+                await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlUsers}/{id}");
+                return Json(new
+                {
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers))
+                });
+            }
+            catch(Exception ex) { return Json(new { isValid = false, mes = ex.Message }); }
         }
 
         [HttpGet]

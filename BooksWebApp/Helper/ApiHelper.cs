@@ -11,6 +11,7 @@ using System.Linq;
 using BooksApi.Models.Paging;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace BooksWebApp.Helper
 {
@@ -121,7 +122,10 @@ namespace BooksWebApp.Helper
                     }
                     else
                     {
-                        throw new Exception("Lỗi: Không có quyền truy cập !");
+                        //throw new Exception("Lỗi: Không có quyền truy cập !");
+                        //var mes = response.StatusCode + System.Text.RegularExpressions.Regex.Unescape(response.Content.ReadAsStringAsync().Result);
+                        CustomError customError = JsonConvert.DeserializeObject<CustomError>(await response.Content.ReadAsStringAsync());
+                        throw new Exception($"{response.StatusCode} - {customError.Error}");
                     }
                 }
                 else
@@ -162,7 +166,8 @@ namespace BooksWebApp.Helper
                     }
                     else
                     {
-                        throw new Exception("Lỗi: Không có quyền truy cập !");
+                        CustomError customError = JsonConvert.DeserializeObject<CustomError>(await response.Content.ReadAsStringAsync());
+                        throw new Exception($"{response.StatusCode} - {customError.Error}");
                     }
                 }
                 else
@@ -205,7 +210,9 @@ namespace BooksWebApp.Helper
                     }
                     else
                     {
-                        return $"{(int)response.StatusCode} - {await response.Content.ReadAsStringAsync()}";
+                        //return $"{(int)response.StatusCode} - {await response.Content.ReadAsStringAsync()}";
+                        CustomError customError = JsonConvert.DeserializeObject<CustomError>(await response.Content.ReadAsStringAsync());
+                        throw new Exception($"{response.StatusCode} - {customError.Error}");
                     }
                 }
                 else
@@ -245,7 +252,9 @@ namespace BooksWebApp.Helper
                     }
                     else
                     {
-                        return $"{(int)response.StatusCode} - {await response.Content.ReadAsStringAsync()}";
+                        //return $"{(int)response.StatusCode} - {await response.Content.ReadAsStringAsync()}";
+                        CustomError customError = JsonConvert.DeserializeObject<CustomError>(await response.Content.ReadAsStringAsync());
+                        throw new Exception($"{response.StatusCode} - {customError.Error}");
                     }
                 }
                 else
@@ -306,6 +315,5 @@ namespace BooksWebApp.Helper
         #endregion
     }
     #endregion
-
 
 }

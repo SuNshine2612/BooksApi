@@ -47,10 +47,7 @@ namespace BooksWebApp.Controllers
             }
             catch(Exception ex)
             {
-                return Json(new { 
-                    isValid = false, 
-                    html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message })
-                });
+                return Json(new { isValid = false, mes = ex.Message });
             }
         }
 
@@ -63,11 +60,22 @@ namespace BooksWebApp.Controllers
             }
             else
             {
-                if (!(await ApiHelper<CustomerTest>.RunGetAsync($"{StaticVar.ApiUrlCustomers}/GetDetails/{id}") is CustomerTest _data))
+                try
                 {
-                    return NotFound();
+                    if (!(await ApiHelper<CustomerTest>.RunGetAsync($"{StaticVar.ApiUrlCustomers}/GetDetails/{id}") is CustomerTest _data))
+                    {
+                        return NotFound();
+                    }
+                    return View(_data);
                 }
-                return View(_data);
+                catch (Exception ex)
+                {
+                    return Json(new
+                    {
+                        isValid = false,
+                        mes = ex.Message
+                    });
+                }
             }
         }
 
@@ -79,29 +87,35 @@ namespace BooksWebApp.Controllers
                 //Insert
                 if (String.IsNullOrEmpty(id))
                 {
-                    // Check isset code ?
-                    if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlCustomers}/ExistsCode/{data.Code}"))
+                    try
                     {
-                        ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
-                        return Json(new
+                        // Check isset code ?
+                        if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlCustomers}/ExistsCode/{data.Code}"))
                         {
-                            isValid = false,
-                            html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
-                        });
+                            ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
+                            return Json(new
+                            {
+                                isValid = false,
+                                html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
+                            });
+                        }
+                        else
+                        {
+                            try
+                            {
+                                CustomerTest result = await ApiHelper<CustomerTest>.RunPostAsync(StaticVar.ApiUrlCustomers, data);
+                            }
+                            catch (Exception ex)
+                            {
+
+                                return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            }
+                        }
                     }
-                    else
+                    catch(Exception ex)
                     {
-                        try
-                        {
-                            CustomerTest result = await ApiHelper<CustomerTest>.RunPostAsync(StaticVar.ApiUrlCustomers, data);
-                        }
-                        catch (Exception ex)
-                        {
-
-                            return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
-                        }
+                        return Json(new { isValid = false, mes = ex.Message});
                     }
-
                 }
                 //Update
                 else
@@ -144,11 +158,22 @@ namespace BooksWebApp.Controllers
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlCustomers}/{id}");
-            return Json(new
+            try
             {
-                html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll")
-            });
+                await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlCustomers}/{id}");
+                return Json(new
+                {
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    isValid = false,
+                    mes = ex.Message
+                });
+            }
         }
     }
 }

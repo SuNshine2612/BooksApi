@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace BooksWebApp.Controllers
 {
@@ -20,10 +22,17 @@ namespace BooksWebApp.Controllers
         [NonAction]
         private  async Task<dynamic> SetViewData(string idSelected = null)
         {
-            // select list user to choose author !
-            var authors = await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers);
-            ViewBag.Author = new SelectList(authors, "Code", "FullName", idSelected);
-            return ViewBag;
+            // select list user to choose author ! Always use try/catch when use ApiHeper
+            try
+            {
+                var authors = await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers);
+                ViewBag.Author = new SelectList(authors, "Code", "FullName", idSelected);
+                return ViewBag;
+            }
+            catch(Exception ex)
+            {
+                return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message });
+            }
         }
 
         [NonAction]
@@ -51,11 +60,11 @@ namespace BooksWebApp.Controllers
         // Must check expired token !!! Redirect lo login page ! 
         public async Task<IActionResult> Index()
         {
-            // return normal
-            //return View(await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks));
-            // return with name author
             try
             {
+                // return normal
+                //return View(await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks));
+                // return with name author
                 return View(await GetListBooks());
             }
             catch(Exception ex)
@@ -67,12 +76,8 @@ namespace BooksWebApp.Controllers
                     return RedirectToAction("Login", "UserTest");
                 }
                 else
-                {
-                    return Json(new
-                    {
-                        isValid = false,
-                        html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message })
-                    });
+                { 
+                    return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message });
                 }
             }
         }
@@ -87,12 +92,21 @@ namespace BooksWebApp.Controllers
             }
             else
             {
-                if (!(await ApiHelper<Book>.RunGetAsync($"{StaticVar.ApiUrlBooks}/GetDetails/{id}") is Book _data))
+                try
                 {
-                    return NotFound();
+                    if (!(await ApiHelper<Book>.RunGetAsync($"{StaticVar.ApiUrlBooks}/GetDetails/{id}") is Book _data))
+                    {
+                        return NotFound();
+                    }
+                    await SetViewData(_data.Author);
+                    return View(_data);
                 }
-                await SetViewData(_data.Author);
-                return View(_data);
+                catch(Exception ex)
+                {
+                    // Because call ajax, we must return Json Result !! Not return View()
+                    //return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message });
+                    return Json(new { isValid = false, mes = ex.Message });
+                }
             }
         }
 
@@ -105,29 +119,35 @@ namespace BooksWebApp.Controllers
                 //Insert
                 if (String.IsNullOrEmpty(id))
                 {
-                    // Check isset code ?
-                    if(await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlBooks}/ExistsCode/{data.Code}")){
-                        ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
-                        await SetViewData(data.Author);
-                        return Json(new
-                        {
-                            isValid = false,
-                            html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
-                        });
-                    }
-                    else
+                    try
                     {
-                        try
+                        if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlBooks}/ExistsCode/{data.Code}"))
                         {
-                            Book result = await ApiHelper<Book>.RunPostAsync(StaticVar.ApiUrlBooks, data);
+                            ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
+                            await SetViewData(data.Author);
+                            return Json(new
+                            {
+                                isValid = false,
+                                html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
+                            });
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            await SetViewData();
-                            return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            try
+                            {
+                                Book result = await ApiHelper<Book>.RunPostAsync(StaticVar.ApiUrlBooks, data);
+                            }
+                            catch (Exception ex)
+                            {
+                                await SetViewData();
+                                return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            }
                         }
                     }
-                    
+                    catch(Exception ex)
+                    {
+                        return Json(new { isValid = false, mes = ex.Message });
+                    }
                 }
                 //Update
                 else
@@ -175,10 +195,19 @@ namespace BooksWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlBooks}/{id}");
-            return Json(new { 
-                html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await GetListBooks()) 
-            });
+            try
+            {
+                await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlBooks}/{id}");
+                return Json(new
+                {
+                    isValid = true,
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await GetListBooks())
+                });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { isValid = false, mes = ex.Message });
+            }
         }
 
     }

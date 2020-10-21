@@ -565,6 +565,7 @@ namespace BooksApi.Services
                 return await _collection.Find(filterFinal).Sort(sort).ToListAsync().ConfigureAwait(false);
             return await _collection.Find(filterFinal).ToListAsync().ConfigureAwait(false);
         }
+        
         /// <summary>
         /// Tìm danh sách khớp với điều kiện 1 array truyền vào
         /// </summary>
@@ -599,6 +600,17 @@ namespace BooksApi.Services
             filterFinal = filterGlobal;
             filterFinal &= Builders<T>.Filter.Eq(documentPropertyName, searchValue);
             return await _collection.Find(filterFinal).ToListAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Lấy danh sách theo điều kiện lọc
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public List<T> GetListByfilteNoAsync(FilterDefinition<T> filter)
+        {
+            filter &= filterGlobal;
+            return _collection.Find(filter).ToList();
         }
         #endregion
     }

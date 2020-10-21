@@ -113,7 +113,12 @@ namespace BooksApi
                 };
             });
 
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                //authorize
+                options.Filters.Add(typeof(CustomAuthorize));
+            });
+            //.AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
             services.AddSwaggerGen(c =>
             {

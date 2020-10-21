@@ -33,11 +33,13 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @if (Model != null)
         {
-            i++;
-            if (item.IsActive)
+            foreach (var item in Model)
             {
+                i++;
+                if (item.IsActive)
+                {
                 <tr>
                     <td>@i</td>
                     <td>@Html.DisplayFor(m => item.Code)</td>
@@ -47,7 +49,7 @@
                     <td>@Html.DisplayFor(m => item.Price)</td>
                     <td>
                         <div>
-                            <a class="btn btn-warning btn-sm btn-flat text-white" title="@BooksApi.Services.StaticVar.ActionUpdate" onclick="showModalDialog('@Url.Action("AddOrEdit","Home", new {id = item.Id}, Context.Request.Scheme)','@BooksApi.Services.StaticVar.ActionUpdate')"><i class="fas fa-pencil-alt"></i> </a>
+                            <a class="btn btn-warning btn-sm btn-flat text-white" title="@BooksApi.Services.StaticVar.ActionUpdate" onclick="showModalDialog('@Url.Action("AddOrEdit", "Home", new { id = item.Id }, Context.Request.Scheme)','@BooksApi.Services.StaticVar.ActionUpdate')"><i class="fas fa-pencil-alt"></i> </a>
                             <form asp-action="Delete" asp-route-id="@item.Id" onsubmit="return jQueryAjaxDelete(this)" class="d-inline">
                                 <button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>
                             </form>
@@ -55,6 +57,7 @@
 
                     </td>
                 </tr>
+                }
             }
         }
     </tbody>

@@ -30,7 +30,12 @@
                 datatype: "json",
                 async: true,
                 dataSrc: function (json) {
+                    if (json.isValid !== undefined && !json.isValid) {
+                        toastr.error(json.mes);
+                    }
+                    
                     return json.data;
+                    
                 },
                 error: function (xhr, error, code) {
                     toastr.error(code);
@@ -66,8 +71,8 @@
                         //return "<a href='#' class='btn btn-danger' onclick=DeleteCustomer('" + row.id + "'); ><i class='fas fa-trash-alt'></i></a>";
                         // use MVC
                         var html = '<div>';
-                        html += '<a class="btn btn-warning btn-sm btn-flat text-white" onClick="showModalDialog(\'CustomerTest/AddOrEdit/' + row.id + '\',\'@BooksApi.Services.StaticVar.ActionUpdate\')" title="@BooksApi.Services.StaticVar.ActionUpdate"><i class="fas fa-pencil-alt"></i> </a>';
-                        html += '<form method="post" class="d-inline" onsubmit="return jQueryAjaxDelete(this)" action="CustomerTest/Delete/' + row.id + '" >';
+                        html += '<a class="btn btn-warning btn-sm btn-flat text-white" onClick="showModalDialog(\'/CustomerTest/AddOrEdit/' + row.id + '\',\'@BooksApi.Services.StaticVar.ActionUpdate\')" title="@BooksApi.Services.StaticVar.ActionUpdate"><i class="fas fa-pencil-alt"></i> </a>';
+                        html += '<form method="post" class="d-inline" onsubmit="return jQueryAjaxDelete(this)" action="/CustomerTest/Delete/' + row.id + '" >';
                         html += '<button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>';
                         html += '</form>';
                         html += '</div>';

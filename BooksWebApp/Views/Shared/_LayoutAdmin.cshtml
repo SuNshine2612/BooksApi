@@ -37,7 +37,7 @@
         </div>
 
         <!-- Control sidebar: _RightLayoutAdmin-->
-        <cache expires-after="@TimeSpan.FromMinutes(5)">
+        <cache expires-after="@TimeSpan.FromMinutes(10)">
             <partial name="_RightLayoutAdmin" />
         </cache>
 
@@ -45,7 +45,7 @@
         <partial name="_ModalAddOrEdit" />
 
         <!-- Footer -->
-        <cache expires-after="@TimeSpan.FromMinutes(5)">
+        <cache expires-after="@TimeSpan.FromMinutes(10)">
             <partial name="_FooterLayoutAdmin" />
         </cache>
 
@@ -68,18 +68,16 @@
     <script src="~/js/myScripts.js" asp-append-version="true"></script>
 
     <script type="text/javascript">
-        $(document).ajaxStart(function () {
-            Pace.restart()
-        });
+        $(document).ajaxStart(function () {Pace.restart()});
 
         $(document).ready(function () {
             $("#form-modal").on('hide.bs.modal', function () {
-                //console.log('The modal is about to be hidden.');
                 $('#form-modal .modal-body').html('');
                 $('#form-modal .modal-title').html('');
             });
         });
 
+        /* Config Menu Active When Click */
         $(document).ready(function () {
             const url = window.location;
 

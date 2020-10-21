@@ -7,6 +7,7 @@ using BooksApi.Models.Test;
 using BooksApi.Services;
 using BooksWebApp.Helper;
 using BooksWebApp.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +18,23 @@ namespace BooksWebApp.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            return View(await ApiHelper<List<GroupTest>>.RunGetAsync(StaticVar.ApiUrlGroups));
+            try
+            {
+                return View(await ApiHelper<List<GroupTest>>.RunGetAsync(StaticVar.ApiUrlGroups));
+            }
+            catch(Exception ex)
+            {
+                if (ex.Message.Equals(StaticVar.ExpiredToken))
+                {
+                    // Clear Cookies !!
+                    await HttpContext.SignOutAsync("CookieAuthentication");
+                    return RedirectToAction("Login", "UserTest");
+                }
+                else
+                {
+                    return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message });
+                }
+            }
         }
 
         [HttpGet]
@@ -28,12 +45,19 @@ namespace BooksWebApp.Controllers
                 return View(new GroupTest());
             else
             {
-                var _data = await ApiHelper<GroupTest>.RunGetAsync($"{StaticVar.ApiUrlGroups}/GetDetails/{id}");
-                if (_data == null)
+                try
                 {
-                    return NotFound();
+                    var _data = await ApiHelper<GroupTest>.RunGetAsync($"{StaticVar.ApiUrlGroups}/GetDetails/{id}");
+                    if (_data == null)
+                    {
+                        return NotFound();
+                    }
+                    return View(_data);
                 }
-                return View(_data);
+                catch(Exception ex)
+                {
+                    return Json(new { isValid = false, mes = ex.Message });
+                }
             }
         }
 
@@ -46,28 +70,34 @@ namespace BooksWebApp.Controllers
                 //Insert
                 if (String.IsNullOrEmpty(id))
                 {
-                    // check isset username ?
-                    if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlGroups}/ExistsCode/{data.Code}"))
+                    try
                     {
-                        ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
-                        return Json(new
+                        // check isset username ?
+                        if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlGroups}/ExistsCode/{data.Code}"))
                         {
-                            isValid = false,
-                            html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
-                        });
+                            ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
+                            return Json(new
+                            {
+                                isValid = false,
+                                html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data)
+                            });
+                        }
+                        else
+                        {
+                            try
+                            {
+                                GroupTest result = await ApiHelper<GroupTest>.RunPostAsync(StaticVar.ApiUrlGroups, data);
+                            }
+                            catch (Exception ex)
+                            {
+                                return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
+                            }
+                        }
                     }
-                    else
+                    catch(Exception ex)
                     {
-                        try
-                        {
-                            GroupTest result = await ApiHelper<GroupTest>.RunPostAsync(StaticVar.ApiUrlGroups, data);
-                        }
-                        catch (Exception ex)
-                        {
-                            return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
-                        }
+                        return Json(new { isValid = false, mes = ex.Message });
                     }
-
                 }
                 //Update
                 else
@@ -94,11 +124,18 @@ namespace BooksWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var result = await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlGroups}/{id}");
-            return Json(new
+            try
             {
-                html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<GroupTest>>.RunGetAsync(StaticVar.ApiUrlGroups))
-            });
+                await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlGroups}/{id}");
+                return Json(new
+                {
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<GroupTest>>.RunGetAsync(StaticVar.ApiUrlGroups))
+                });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { isValid = false, mes = ex.Message });
+            }
         }
     }
 }

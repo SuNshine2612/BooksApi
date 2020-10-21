@@ -26,8 +26,8 @@ namespace BooksWebApp
         {
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation()
-                .AddNewtonsoftJson(); // Very important to use return Json(dynamic type)
-                
+                .AddNewtonsoftJson(); // Very important to use return Json(dynamic type, use with DataTable)
+            // https://stackoverflow.com/questions/58392039/how-to-set-json-serializer-settings-in-asp-net-core-3    
 
             // HttpSession
             services.AddHttpContextAccessor();
@@ -91,7 +91,7 @@ namespace BooksWebApp
 
             // Http Response cache
             // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
-            app.UseResponseCaching();
+            /*app.UseResponseCaching();
             app.Use(async (context, next) =>
             {
                 context.Response.GetTypedHeaders().CacheControl =
@@ -104,7 +104,7 @@ namespace BooksWebApp
                     new string[] { "Accept-Encoding" };
 
                 await next();
-            });
+            });*/
 
             app.UseEndpoints(endpoints =>
             {
