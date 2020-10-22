@@ -18,7 +18,7 @@
                 <img src="~/admin/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
-                <a onclick="showModalDialog('@Url.Action("ChangePass","UserTest", new {id = codeUser}, Context.Request.Scheme)','Đổi Mật Khẩu')" class="d-block">@Context.User.Identity.Name</a>
+                <a data-name="@Context.User.Identity.Name" id="userNameLeft" onclick="showModalDialog('@Url.Action("ChangePass","UserTest", new {id = codeUser}, Context.Request.Scheme)','Đổi Mật Khẩu')" class="d-block">@Context.User.Identity.Name</a>
             </div>
         </div>
         <!-- Sidebar Menu -->

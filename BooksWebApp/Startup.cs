@@ -1,6 +1,6 @@
 using System;
 using BooksApi.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using BooksWebApp.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +29,9 @@ namespace BooksWebApp
                 .AddNewtonsoftJson(); // Very important to use return Json(dynamic type, use with DataTable)
             // https://stackoverflow.com/questions/58392039/how-to-set-json-serializer-settings-in-asp-net-core-3    
 
+            // Configure SignalR
+            services.AddSignalR();
+
             // HttpSession
             services.AddHttpContextAccessor();
             services.AddSession(options =>
@@ -45,16 +48,16 @@ namespace BooksWebApp
 
             // Authenticate use CookieAuthentication 
             services.AddAuthentication("CookieAuthentication")
-                .AddCookie("CookieAuthentication", config =>
-                {
-                    config.Cookie.Name = StaticVar.CookiesAuthenticate;
-                    config.LoginPath = "/UserTest/Login";
-                    config.AccessDeniedPath = "/UserTest/Login";
-                    config.SlidingExpiration = false;
-                    config.ExpireTimeSpan = TimeSpan.FromDays(2);
+                    .AddCookie("CookieAuthentication", config =>
+                    {
+                        config.Cookie.Name = StaticVar.CookiesAuthenticate;
+                        config.LoginPath = "/UserTest/Login";
+                        config.AccessDeniedPath = "/UserTest/Login";
+                        config.SlidingExpiration = false;
+                        config.ExpireTimeSpan = TimeSpan.FromDays(2);
 
-                    // set lifetime = lifetine token expired !!
-                });
+                        // set lifetime = lifetine token expired !!
+                    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -91,7 +94,7 @@ namespace BooksWebApp
 
             // Http Response cache
             // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
-            /*app.UseResponseCaching();
+            app.UseResponseCaching();
             app.Use(async (context, next) =>
             {
                 context.Response.GetTypedHeaders().CacheControl =
@@ -104,14 +107,20 @@ namespace BooksWebApp
                     new string[] { "Accept-Encoding" };
 
                 await next();
-            });*/
+            });
+
 
             app.UseEndpoints(endpoints =>
             {
+                // Configure SignalR
+                //endpoints.MapHub<ChatHub>("/chatHub");
+                endpoints.MapHub<DrawDotHub>("/drawDotHub");
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+ 
         }
     }
 }

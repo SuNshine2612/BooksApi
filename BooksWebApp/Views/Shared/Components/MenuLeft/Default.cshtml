@@ -49,14 +49,28 @@ else
     <li class="nav-item">
         <a href="@Url.Action("Logout", "UserTest")" class="nav-link">
             <i class="nav-icon fas fa-th"></i>
-            <p>
-                Thoát
-                <span class="right badge badge-danger">New</span>
-            </p>
+            <p>Thoát</p>
         </a>
     </li>
 }
-
+<li class="nav-item">
+    <a href="@Url.Action("Index", "SignalR")" class="nav-link">
+        <i class="nav-icon fas fa-th"></i>
+        <p>
+            SignalR Demo
+            <span class="right badge badge-danger">New</span>
+        </p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="@Url.Action("Index", "Sse")" class="nav-link">
+        <i class="nav-icon fas fa-th"></i>
+        <p>
+            SSE
+            <span class="right badge badge-danger">New</span>
+        </p>
+    </a>
+</li>
 
 @*    Tham Khảo Mẫu Menu !
     <li class="nav-item has-treeview">
