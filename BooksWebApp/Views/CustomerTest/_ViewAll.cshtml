@@ -33,9 +33,7 @@
                     if (json.isValid !== undefined && !json.isValid) {
                         toastr.error(json.mes);
                     }
-                    
                     return json.data;
-                    
                 },
                 error: function (xhr, error, code) {
                     toastr.error(code);

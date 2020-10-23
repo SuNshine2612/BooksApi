@@ -1,0 +1,91 @@
+﻿@model IEnumerable<BooksApi.Models.Test.Book>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="~/admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+<!-- DataTables -->
+<script src="~/admin/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/admin/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/admin/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        var myTable = $('#myTable').DataTable({
+            autoWidth: false,
+            responsive: true,
+            filter: true,
+            columns: [
+                { "data": "Code", "name": "Code", "autoWidth": true },
+                { "data": "Name", "name": "Name", "autoWidth": true },
+                { "data": "Category", "name": "Category", "autoWidth": true },
+                { "data": "AuthorName", "name": "AuthorName", "autoWidth": true },
+                { "data": "Price", "name": "Price", "autoWidth": true },
+                {
+                    "render": function (data, type, row) {
+                        // use actually Jquery, need define method delete, edit with datatable reload !!
+                        //return "<a href='#' class='btn btn-danger' onclick=DeleteCustomer('" + row.id + "'); ><i class='fas fa-trash-alt'></i></a>";
+                        // use MVC
+                        var html = '<div>';
+                        html += '<a class="btn btn-warning btn-sm btn-flat text-white" onClick="showModalDialog(\'/Home/AddOrEdit/' + row.Id + '\',\'@BooksApi.Services.StaticVar.ActionUpdate\')" title="@BooksApi.Services.StaticVar.ActionUpdate"><i class="fas fa-pencil-alt"></i> </a>';
+                        html += '<form method="post" class="d-inline" onsubmit="return jQueryAjaxDelete(this)" action="/Home/Delete/' + row.Id + '" >';
+                        html += '<button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>';
+                        html += '</form>';
+                        html += '</div>';
+                        return html;
+                    }
+                },
+            ]
+        });
+
+        /* SSE */
+        if (typeof (EventSource) !== "undefined") {
+            var source = new EventSource("/Sse/Process");
+
+            // Begin connect ! Processing started !
+            source.addEventListener("open", function (event) {
+                console.log("SSE: Processing started...");
+            }, false);
+
+            // When error ! Close connection !
+            source.addEventListener("error", function (event) {
+                if (event.eventPhase == EventSource.CLOSED) {
+                    console.log("SSE: Connection Closed!");
+                    //source.close();  Ko chạy lại khi đóng !!
+                }
+            }, false);
+
+            // Listen message response from server !
+            source.addEventListener("message", function (event) {
+                //console.log(event);
+                var data = JSON.parse(event.data);
+               // console.log(data);
+                myTable.clear();
+                myTable.rows
+                    .add(data)
+                    .draw();
+            }, false);
+
+
+        } else {
+            document.getElementById("resultAlert").innerHTML = "Sorry, your browser does not support server-sent events...";
+        }
+    });
+    
+</script>
+
+<table class="table table-hover table-striped" id="myTable">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(m => m.Code)</th>
+            <th>@Html.DisplayNameFor(m => m.Name)</th>
+            <th>@Html.DisplayNameFor(m => m.Category)</th>
+            <th>@Html.DisplayNameFor(m => m.AuthorName)</th>
+            <th>@Html.DisplayNameFor(m => m.Price)</th>
+            <th></th>
+        </tr>
+    </thead>
+</table>
+<p id="resultAlert" class="text-danger"></p>

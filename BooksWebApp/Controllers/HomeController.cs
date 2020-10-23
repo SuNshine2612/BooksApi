@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using System.Net;
 
 namespace BooksWebApp.Controllers
 {
@@ -192,7 +191,8 @@ namespace BooksWebApp.Controllers
 
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken] 
+        // Nên giữ ! Bỏ khi dùng SSE !!
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             try
