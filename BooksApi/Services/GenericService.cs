@@ -18,6 +18,8 @@ namespace BooksApi.Services
 
         private readonly FilterDefinition<T> filterGlobal;
         private readonly FilterDefinition<T> filterBase = Builders<T>.Filter.Eq("IsActive", true);
+        //private readonly FilterDefinition<T> filterBase = new BsonDocument("IsActive", true);
+        // private readonly FilterDefinition<T> filterBase = "{ IsActive: true }";
         private FilterDefinition<T> filterFinal;
 
         #region Constructor GenericService
@@ -493,6 +495,8 @@ namespace BooksApi.Services
                     var indexModel = new CreateIndexModel<T>(keys, options);
                     _collection.Indexes.CreateOne(indexModel);
                     // https://www.codeproject.com/Articles/524602/Beginners-guide-to-using-MongoDB-4-0-2-and-the-off
+                    // https://mongodb.github.io/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/#list-the-databases
+                    // https://viblo.asia/p/tim-hieu-ve-index-trong-mongodb-924lJL4WKPM
                     // use CreateIndexModel
                 }
                 catch (Exception) { }
