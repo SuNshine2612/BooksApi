@@ -1,49 +1,67 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace BooksApi.Models.Test
+namespace BooksApi.Models.BASIC.TMS.KHO_VATTU
 {
     [BsonIgnoreExtraElements]
-    public class Book
+    public class Warehouse
     {
         [BsonId] // designate this property as the document's primary key.
         [BsonRepresentation(BsonType.ObjectId)] // allow passing the parameter as type string instead of an ObjectId structure
         public string Id { get; set; }
 
-        [Display(Name = "Mã Sách")]
+        [Display(Name = "Mã Kho")]
         [Required(ErrorMessage = "{0} Không Được Để Trống !")]
         [BsonRequired]
-        [MaxLength(6, ErrorMessage = "{0} Tối Đa {1} Kí Tự")]
         [MinLength(3, ErrorMessage = "{0} Tối Thiểu {1} Kí Tự")]
         public string Code { get; set; }
 
-        [Display(Name = "Tên Sách")]
+        [Display(Name = "Tên Kho")]
         [Required(ErrorMessage = "{0} Không Được Để Trống !")]
         [BsonRequired]
         public string Name { get; set; }
 
-        [Display(Name = "Giá")]
-        [BsonRepresentation(BsonType.Decimal128)]
-        [Range(0, double.PositiveInfinity, ErrorMessage = "{0} phải lớn hơn {1}.")]
-        public decimal Price { get; set; }
+        /// <summary>
+        /// Địa Chỉ
+        /// </summary>
+        [Display(Name = "Địa Chỉ")]
+        [BsonDefaultValue("")]
+        public string Address { get; set; }
 
-        [Display(Name = "Thể Loại")]
-        [Required(ErrorMessage = "{0} Không Được Để Trống !")]
-        [BsonRequired]
-        public string Category { get; set; }
+        /// <summary>
+        /// Số Điện Thoại
+        /// </summary>
+        [Display(Name = "Điện Thoại")]
+        [BsonDefaultValue("")]
+        public string Phone { get; set; }
 
-        [Display(Name = "Tác Giả")]
-        [Required(ErrorMessage = "{0} Không Được Để Trống !")]
-        [BsonRequired]
-        public string Author { get; set; }
+        /// <summary>
+        /// Fax
+        /// </summary>
+        [BsonDefaultValue("")]
+        public string Fax { get; set; }
 
-        [BsonExtraElements]
+        /// <summary>
+        /// Người liên hệ
+        /// </summary>
+        [Display(Name = "Người Liên Hệ")]
+        [BsonDefaultValue("")]
+        public string ContactPerson { get; set; }
+
         [BsonIgnoreIfNull]
         [BsonIgnore]
-        [Display(Name = "Tên Tác Giả")]
-        public string AuthorName{ get; set; }
+        [Display(Name = "Tên Kho EN")]
+        public string NameEN { get; set; }
+
+        [BsonIgnoreIfNull]
+        [BsonIgnore]
+        [Display(Name = "Địa Chỉ EN")]
+        public string AddressEN { get; set; }
 
         //[DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         //==============================================

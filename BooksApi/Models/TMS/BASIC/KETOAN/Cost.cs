@@ -1,49 +1,53 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace BooksApi.Models.Test
+namespace BooksApi.Models.TMS.BASIC.KETOAN
 {
-    [BsonIgnoreExtraElements]
-    public class Book
+    public class Cost
     {
         [BsonId] // designate this property as the document's primary key.
         [BsonRepresentation(BsonType.ObjectId)] // allow passing the parameter as type string instead of an ObjectId structure
         public string Id { get; set; }
 
-        [Display(Name = "Mã Sách")]
+        [Display(Name = "Mã Chi Phí")]
         [Required(ErrorMessage = "{0} Không Được Để Trống !")]
         [BsonRequired]
-        [MaxLength(6, ErrorMessage = "{0} Tối Đa {1} Kí Tự")]
         [MinLength(3, ErrorMessage = "{0} Tối Thiểu {1} Kí Tự")]
         public string Code { get; set; }
 
-        [Display(Name = "Tên Sách")]
+        [Display(Name = "Tên Chi Phí")]
         [Required(ErrorMessage = "{0} Không Được Để Trống !")]
         [BsonRequired]
         public string Name { get; set; }
 
-        [Display(Name = "Giá")]
-        [BsonRepresentation(BsonType.Decimal128)]
-        [Range(0, double.PositiveInfinity, ErrorMessage = "{0} phải lớn hơn {1}.")]
-        public decimal Price { get; set; }
+        /// <summary>
+        /// Sort
+        /// </summary>
+        [Display(Name = "Thứ Tự")]
+        [BsonRepresentation(BsonType.Int32)]
+        public int Sort { get; set; }
 
-        [Display(Name = "Thể Loại")]
+        /// <summary>
+        /// Mã Loại GIải trừ (Code)
+        /// </summary>
+        [Display(Name = "Loại Giải Trừ")]
         [Required(ErrorMessage = "{0} Không Được Để Trống !")]
         [BsonRequired]
-        public string Category { get; set; }
+        public string DissolveId { get; set; }
 
-        [Display(Name = "Tác Giả")]
-        [Required(ErrorMessage = "{0} Không Được Để Trống !")]
-        [BsonRequired]
-        public string Author { get; set; }
-
+        /// <summary>
+        /// Tên loại giải trì - chỉ dùng để hiển thị, không có dưới database
+        /// </summary>
+        [Display(Name = "Loại Giải Trừ")]
         [BsonExtraElements]
-        [BsonIgnoreIfNull]
         [BsonIgnore]
-        [Display(Name = "Tên Tác Giả")]
-        public string AuthorName{ get; set; }
+        [BsonIgnoreIfNull]
+        public string StrDissolveName { get; set; }
 
         //[DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         //==============================================

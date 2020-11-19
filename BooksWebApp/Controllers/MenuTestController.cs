@@ -157,7 +157,7 @@ namespace BooksWebApp.Controllers
                 await ApiHelper<dynamic>.RunDeleteAsync($"{StaticVar.ApiUrlMenus}/{id}");
                 return Json(new
                 {
-                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await ApiHelper<List<MenuTest>>.RunGetAsync(StaticVar.ApiUrlMenus))
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await GetListMenu())
                 });
             }
             catch(Exception ex) { return Json(new { isValid = false, mes = ex.Message }); }
