@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BooksApi.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MenusTestController : ControllerBase
@@ -29,24 +29,25 @@ namespace BooksApi.Controllers
         public async Task<List<MenuTest>> Get()
         {
             // admin_tms thì load hết, ko thì kiểm tra trong token, lấy ra ds MenuCode !
-            ClaimsPrincipal claimPrincipal = HttpContext.User;
-            if (claimPrincipal.Identity.IsAuthenticated)
-            {
-                var userId = UserClaim.UserId ?? "anonymous";
-                if(userId.Equals("admin_tms", StringComparison.OrdinalIgnoreCase)){
-                    return await _serviceMenuTest.GetAllAsync();
-                }
-                else
-                {
-                    var arrMenuCode = claimPrincipal.FindFirst(StaticVar.ClaimArrMenu).Value;
-                    if (!String.IsNullOrEmpty(arrMenuCode))
-                    {
-                        return await _serviceMenuTest.SearchMatchArray("Code", arrMenuCode.Split(",").ToList());
-                    }
-                }
-            }
-            return null;
-            
+            /* ClaimsPrincipal claimPrincipal = HttpContext.User;
+             if (claimPrincipal.Identity.IsAuthenticated)
+             {
+                 var userId = UserClaim.UserId ?? "anonymous";
+                 if (userId.Equals("admin_tms", StringComparison.OrdinalIgnoreCase))
+                 {
+                     return await _serviceMenuTest.GetAllAsync();
+                 }
+                 else
+                 {
+                     var arrMenuCode = claimPrincipal.FindFirst(StaticVar.ClaimArrMenu).Value;
+                     if (!String.IsNullOrEmpty(arrMenuCode))
+                     {
+                         return await _serviceMenuTest.SearchMatchArray("Code", arrMenuCode.Split(",").ToList());
+                     }
+                 }
+             }
+             return null;*/
+            return await _serviceMenuTest.GetAllAsync();
         }
 
         [Route("[action]/{id}")]
