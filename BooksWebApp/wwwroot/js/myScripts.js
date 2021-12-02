@@ -1,11 +1,18 @@
-﻿showModalDialog = (url, title) => {
+﻿showModalDialog = (url, title, file = false) => {
     $.ajax({
         type: 'GET',
         url: url,
         success: function (res) {
-            $('#form-modal .modal-body').html(res);
-            $('#form-modal .modal-title').html(title);
-            $('#form-modal').modal('show');
+            if (!file) {
+                $('#form-modal .modal-body').html(res);
+                $('#form-modal .modal-title').html(title);
+                $('#form-modal').modal('show'); 
+            }
+            else {
+                $('#form-modal-file .modal-body').html(res);
+                $('#form-modal-file .modal-title').html(title);
+                $('#form-modal-file').modal('show');
+            }
 
             if (!res.isValid && res.mes !== undefined) {
                 toastr.error(res.mes);
@@ -36,13 +43,15 @@ jQueryAjaxPost = form => {
                     }
                     $('#form-modal').modal('hide');
 
+
                     if (res.html !== undefined) {
                         $('#view-all').html(res.html);
                     }
                     
                     // reset
-                    $('#form-modal .modal-body').html('');
-                    $('#form-modal .modal-title').html('');
+                    $('.modal-backdrop').css('display', 'none');
+                    //$('#form-modal .modal-body').html('');
+                    //$('#form-modal .modal-title').html('');
                 }
                 else {
                     if (res.html !== undefined) {
@@ -94,4 +103,5 @@ jQueryAjaxDelete = form => {
     //prevent default form submit event
     return false;
 }
+
 

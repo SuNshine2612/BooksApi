@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using BooksApi.Models.Book;
 using BooksApi.Models.Paging;
-using BooksApi.Models.Test;
 using BooksApi.Services;
 using BooksWebApp.Helper;
 using BooksWebApp.Models;
@@ -54,7 +54,7 @@ namespace BooksWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> AddOrEdit(string id)
         {
-            if (String.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(id))
             {
                 return View(new CustomerTest());
             }
@@ -62,7 +62,7 @@ namespace BooksWebApp.Controllers
             {
                 try
                 {
-                    if (!(await ApiHelper<CustomerTest>.RunGetAsync($"{StaticVar.ApiUrlCustomers}/GetDetails/{id}") is CustomerTest _data))
+                    if (await ApiHelper<CustomerTest>.RunGetAsync($"{StaticVar.ApiUrlCustomers}/GetDetails/{id}") is not CustomerTest _data)
                     {
                         return NotFound();
                     }

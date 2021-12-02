@@ -1,4 +1,4 @@
-﻿@model BooksApi.Models.Test.Book
+﻿@model Book
 @{ Layout = null; }
 
 
@@ -7,9 +7,18 @@
         //Initialize Select2 Elements
         $('.select2bs4').select2({
             theme: 'bootstrap4'
-        })
+        });
     });
 </script>
+
+@{ 
+    object summerNote = new
+    {
+        height = 400,
+        selector = "#Content"
+    };
+    @await Html.PartialAsync("_Summernote", summerNote);
+}
 
 <div class="row">
     <div class="col-md-12">
@@ -41,7 +50,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label asp-for="Category" class="control-label"></label>
-                            <input asp-for="Category" class="form-control" />
+                            <select style="width: 100%" asp-for="Category" class="form-control select2bs4" asp-items="ViewBag.Categories"></select>
                             <span asp-validation-for="Category" class="text-danger"></span>
                         </div>
                     </div>
@@ -69,6 +78,26 @@
                             <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UrlImage" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="UrlImage" class="form-control" />
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" onclick="showModalDialog('@Url.Action("Index", "FileManager", null, Context.Request.Scheme)', 'Quản Lý Thư Viện', true)"><i class="fas fa-file-image"></i></span>
+                        </div>
+                    </div>
+                    <span asp-validation-for="UrlImage" class="text-danger"></span>
+                    <div id="divImage">
+                        <img src="/files/@Model.UrlImage" class="img-thumbnail" alt="@Model.Name" style="max-height: 80px" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Content" class="control-label"></label>
+                    <textarea asp-for="Content" class="form-control"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
                 </div>
             </div>
             <!-- /.card-body -->

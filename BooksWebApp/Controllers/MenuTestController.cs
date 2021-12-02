@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BooksApi.Models.Global;
-using BooksApi.Models.Test;
+using BooksApi.Models.Book;
 using BooksApi.Services;
 using BooksWebApp.Helper;
 using BooksWebApp.Models;
@@ -40,7 +40,7 @@ namespace BooksWebApp.Controllers
         [NonAction]
         private async Task<ListWithStatusViewModel<MenuTest>> GetListMenu()
         {
-            List<MenuTest> _temp = new List<MenuTest>();
+            List<MenuTest> _temp = new();
             _temp = GetTrees(ref _temp, await ApiHelper<List<MenuTest>>.RunGetAsync(StaticVar.ApiUrlMenus));
             var CustomeViewModel = new ListWithStatusViewModel<MenuTest>()
             {

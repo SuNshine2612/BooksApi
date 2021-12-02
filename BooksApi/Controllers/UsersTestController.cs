@@ -1,6 +1,5 @@
 ﻿using BooksApi.Models.Global;
-using BooksApi.Models.Test;
-using BooksApi.Models.TMS;
+using BooksApi.Models.Book;
 using BooksApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -264,7 +263,7 @@ namespace BooksApi.Controllers
         [NonAction]
         private IEnumerable<Claim> GenerateUserClaims(UserTest user)
         {
-            List<Claim> claims = new List<Claim>
+            List<Claim> claims = new()
             {
                 new Claim(StaticVar.ClaimObjectId, user.Id), // ObjectID
                 new Claim(StaticVar.ClaimCode, user.Code), // Username

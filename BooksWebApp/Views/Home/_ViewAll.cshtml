@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BooksApi.Models.Test.Book>
+﻿@model IEnumerable<Book>
 @{ int i = 0;}
 
 <!-- DataTables -->
@@ -20,15 +20,25 @@
     });
 </script>
 
+
+<!-- Bổ Sung Khi Load Lại Form -->
+<!-- Select2 -->
+<link rel="stylesheet" href="~/admin/plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="~/admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+<script src="~/admin/plugins/select2/js/select2.full.min.js"></script>
+
+
+
 <table class="table table-hover table-striped" id="myTable">
     <thead>
         <tr>
             <th>#</th>
+            <th>@Html.DisplayNameFor(m => m.UrlImage)</th>
             <th>@Html.DisplayNameFor(m => m.Code)</th>
             <th>@Html.DisplayNameFor(m => m.Name)</th>
-            <th>@Html.DisplayNameFor(m => m.Category)</th>
-            <th>@Html.DisplayNameFor(m => m.AuthorName)</th>
             <th>@Html.DisplayNameFor(m => m.Price)</th>
+            <th>@Html.DisplayNameFor(m => m.CategoryName)</th>
+            <th>@Html.DisplayNameFor(m => m.AuthorName)</th>
             <th></th>
         </tr>
     </thead>
@@ -40,23 +50,33 @@
                 i++;
                 if (item.IsActive)
                 {
-                <tr>
-                    <td>@i</td>
-                    <td>@Html.DisplayFor(m => item.Code)</td>
-                    <td>@Html.DisplayFor(m => item.Name)</td>
-                    <td>@Html.DisplayFor(m => item.Category)</td>
-                    <td>@Html.DisplayFor(m => item.AuthorName)</td>
-                    <td>@Html.DisplayFor(m => item.Price)</td>
-                    <td>
-                        <div>
-                            <a class="btn btn-warning btn-sm btn-flat text-white" title="@BooksApi.Services.StaticVar.ActionUpdate" onclick="showModalDialog('@Url.Action("AddOrEdit", "Home", new { id = item.Id }, Context.Request.Scheme)','@BooksApi.Services.StaticVar.ActionUpdate')"><i class="fas fa-pencil-alt"></i> </a>
-                            <form asp-action="Delete" asp-route-id="@item.Id" onsubmit="return jQueryAjaxDelete(this)" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>
-                            </form>
-                        </div>
+                    <tr>
+                        <td>@i</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.UrlImage))
+                            {
+                                <img src="~/files/@item.UrlImage" alt="@item.Name" class="img-thumbnail" style="max-height: 80px" />
+                            }
+                            else
+                            {
+                                <img src="~/files/no-image.png" alt="@item.Name" class="img-thumbnail" style="max-height: 80px" />
+                            }
+                        </td>
+                        <td>@item.Code</td>
+                        <td>@item.Name</td>
+                        <td>@item.Price</td>
+                        <td>@item.CategoryName</td>
+                        <td>@item.AuthorName</td>
+                        <td>
+                            <div>
+                                <a class="btn btn-warning btn-sm btn-flat text-white" title="@BooksApi.Services.StaticVar.ActionUpdate" onclick="showModalDialog('@Url.Action("AddOrEdit", "Home", new { id = item.Id }, Context.Request.Scheme)','@BooksApi.Services.StaticVar.ActionUpdate')"><i class="fas fa-pencil-alt"></i> </a>
+                                <form asp-action="Delete" asp-route-id="@item.Id" onsubmit="return jQueryAjaxDelete(this)" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm btn-flat"><i class="fas fa-trash-alt"></i> </button>
+                                </form>
+                            </div>
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
                 }
             }
         }

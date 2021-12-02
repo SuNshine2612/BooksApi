@@ -1,4 +1,4 @@
-﻿using BooksApi.Models.Test;
+﻿using BooksApi.Models.Book;
 using System;
 using System.Collections.Generic;
 using System.Linq;

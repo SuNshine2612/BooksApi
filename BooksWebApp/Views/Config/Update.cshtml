@@ -1,0 +1,207 @@
+﻿@model Config
+@{
+    ViewData["Title"] = "Cấu Hình Trang";
+}
+
+<!-- Validation Scripts -->
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Begin card -->
+                <div class="card card-primary card-outline">
+                    <!-- Card header -->
+                    <div class="card-header">
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove" data-toggle="tooltip" title="Remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <form class="form-horizontal" asp-action="Update" asp-route-id="@Model.Code">
+                        <!-- Card body-->
+                        <div class="card-body">
+                            <h5 class="text-success">@TempData["message"]</h5>
+                            <!-- Form Horizontal-->
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" name="Id" value="@Model.Id" />
+
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <label asp-for="Code" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-envelope"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="Code" readonly="readonly">
+                                        </div>
+                                        <span asp-validation-for="Code" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label asp-for="CompanyName" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-building"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="CompanyName">
+                                        </div>
+                                        <span asp-validation-for="CompanyName" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="Address" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-map-marked-alt"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="Address">
+                                        </div>
+                                        <span asp-validation-for="Address" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="Phone" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-phone-volume"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="Phone">
+                                        </div>
+                                        <span asp-validation-for="Phone" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="Hotline" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-blender-phone"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="Hotline">
+                                        </div>
+                                        <span asp-validation-for="Hotline" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="Fax" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-fax"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="Fax">
+                                        </div>
+                                        <span asp-validation-for="Fax" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="Email" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-envelope"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="Email">
+                                        </div>
+                                        <span asp-validation-for="Email" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="Fanpage" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fab fa-facebook-square"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" asp-for="Fanpage">
+                                        </div>
+                                        <span asp-validation-for="Fanpage" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="UrlImage" class="control-label col-sm-2 "></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input asp-for="UrlImage" class="form-control" />
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" onclick="showModalDialog('@Url.Action("Index", "FileManager", null, Context.Request.Scheme)', 'Quản Lý Thư Viện', true)"><i class="fas fa-file-image"></i></span>
+                                            </div>
+                                        </div>
+                                        <span asp-validation-for="UrlImage" class="text-danger"></span>
+                                        <div id="divImage">
+                                            <img src="~/files/@Model.UrlImage" class="img-thumbnail" alt="@Model.CompanyName" style="max-height: 80px" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label asp-for="ScriptCode" class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-10">
+                                        <textarea asp-for="ScriptCode" class="form-control" rows="4"></textarea>
+                                        <span asp-validation-for="Email" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <div class="modal-footer">
+                            <button  class="btn btn-primary btn-flat"><i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> @BooksApi.Services.StaticVar.ButtonSave</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End card -->
+            </div>
+        </div>
+    </div>
+</div>

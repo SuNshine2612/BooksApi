@@ -6,19 +6,18 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using BooksApi.Models.TMS;
 using System.Linq;
 using BooksApi.Models.Paging;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using BooksApi.Models.Book;
 
 namespace BooksWebApp.Helper
 {
     #region API for login
     public class ApiHelper
     {
-        private static string _BaseUrl = String.Empty;
+        private static string _BaseUrl = string.Empty;
 
         #region Constructor
         public static HttpClient GetClient()
@@ -43,7 +42,7 @@ namespace BooksWebApp.Helper
             using (var client = GetClient())
             {
                 string apiURL = $"{StaticVar.ApiUrlUsers}/Login";
-                Authenticate login = new Authenticate();
+                Authenticate login = new();
                 {
                     login.Code = userName;
                     login.Password = password;
@@ -73,8 +72,10 @@ namespace BooksWebApp.Helper
         public static HttpClient GetClient()
         {
             _BaseUrl = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("BOOKSAPI")["BaseUrl"];
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(_BaseUrl);
+            HttpClient client = new()
+            {
+                BaseAddress = new Uri(_BaseUrl)
+            };
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
@@ -86,7 +87,7 @@ namespace BooksWebApp.Helper
             // if use cookies save ClaimsUser, use this !!
             string userToken = AppContext.Current.User.Claims.Where(c => c.Type == StaticVar.SessionUserToken).FirstOrDefault()?.Value;
 
-            if (!String.IsNullOrEmpty(userToken))
+            if (!string.IsNullOrEmpty(userToken))
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
             }

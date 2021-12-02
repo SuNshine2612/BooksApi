@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BooksWebApp.Models;
-using BooksApi.Models.Test;
+using BooksApi.Models.Book;
 using BooksWebApp.Helper;
 using BooksApi.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,33 +16,18 @@ using Microsoft.AspNetCore.Http;
 namespace BooksWebApp.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
+        // Join ở đây không đúng lắm ?? Join ở api r trả về sẽ hợp lý hơn
         [NonAction]
-        private  async Task<dynamic> SetViewData(string idSelected = null)
+        static async Task<List<Book>> GetListBooks()
         {
-            // select list user to choose author ! Always use try/catch when use ApiHeper
-            try
-            {
-                var authors = await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers);
-                ViewBag.Author = new SelectList(authors, "Code", "FullName", idSelected);
-                return ViewBag;
-            }
-            catch(Exception ex)
-            {
-                return View(viewName: "Error", model: new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message });
-            }
-        }
-
-        [NonAction]
-        private async Task<List<Book>> GetListBooks()
-        {
-
-            List<Book> _books = await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks);
+            #region Sử dụng linq để join tại client ???
+            /*List<Book> _books = await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks);
             List<UserTest> _authors = await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers);
 
             var query = from b in _books
-                        join a in _authors on b.Author equals a.Code
+                        join a in _authors on b.Author equals a.Id
                         select new Book
                         {
                             Id = b.Id,
@@ -52,8 +37,10 @@ namespace BooksWebApp.Controllers
                             AuthorName = a.FullName,
                             Price = b.Price
                         };
-            return query.ToList();
+            return query.ToList();*/
+            #endregion
 
+            return await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks);
         }
 
         // Must check expired token !!! Redirect lo login page ! 
@@ -84,20 +71,20 @@ namespace BooksWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> AddOrEdit(string id)
         {
-            if (String.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(id))
             {
-                 await SetViewData();
+                 await SetViewBookData();
                 return View(new Book());
             }
             else
             {
                 try
                 {
-                    if (!(await ApiHelper<Book>.RunGetAsync($"{StaticVar.ApiUrlBooks}/GetDetails/{id}") is Book _data))
+                    if (await ApiHelper<Book>.RunGetAsync($"{StaticVar.ApiUrlBooks}/GetDetails/{id}") is not Book _data)
                     {
                         return NotFound();
                     }
-                    await SetViewData(_data.Author);
+                    await SetViewBookData();
                     return View(_data);
                 }
                 catch(Exception ex)
@@ -115,15 +102,15 @@ namespace BooksWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                //Insert
-                if (String.IsNullOrEmpty(id))
+                #region Insert
+                if (string.IsNullOrEmpty(id))
                 {
                     try
                     {
                         if (await ApiHelper<bool>.CheckIssetCode($"{StaticVar.ApiUrlBooks}/ExistsCode/{data.Code}"))
                         {
                             ModelState.AddModelError("", StaticVar.MessageCodeDuplicated);
-                            await SetViewData(data.Author);
+                            await SetViewBookData();
                             return Json(new
                             {
                                 isValid = false,
@@ -138,7 +125,7 @@ namespace BooksWebApp.Controllers
                             }
                             catch (Exception ex)
                             {
-                                await SetViewData();
+                                await SetViewBookData();
                                 return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
                             }
                         }
@@ -148,7 +135,8 @@ namespace BooksWebApp.Controllers
                         return Json(new { isValid = false, mes = ex.Message });
                     }
                 }
-                //Update
+                #endregion
+                #region Update
                 else
                 {
                     // Check isset code , but allow itself !!
@@ -161,14 +149,14 @@ namespace BooksWebApp.Controllers
                         }
                         catch (Exception ex)
                         {
-                            await SetViewData(data.Author);
+                            await SetViewBookData();
                             return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = ex.Message }) });
                         }
                     }
                     else
                     {
                         ModelState.AddModelError("", "Mã sách bị trùng !!");
-                        await SetViewData(data.Author);
+                        await SetViewBookData();
                         return Json(new
                         {
                             isValid = false,
@@ -177,14 +165,15 @@ namespace BooksWebApp.Controllers
                     }
                     
                 }
+                #endregion
                 return Json(new { 
-                        isValid = true, 
-                        html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await GetListBooks())
-                    });
+                    isValid = true, 
+                    html = MyViewHelper.RenderRazorViewToString(this, "_ViewAll", await GetListBooks())
+                });
             }
             else
             {
-                await SetViewData(data.Author);
+                await SetViewBookData();
             }
             return Json(new { isValid = false, html = MyViewHelper.RenderRazorViewToString(this, "AddOrEdit", data) });
         }

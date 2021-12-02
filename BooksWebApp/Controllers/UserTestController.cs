@@ -1,25 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BooksApi.Models.Test;
+using BooksApi.Models.Book;
 using BooksWebApp.Helper;
 using Microsoft.AspNetCore.Mvc;
 using BooksApi.Services;
 using BooksWebApp.Models;
 using System.Diagnostics;
-using BooksApi.Models.TMS;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
 namespace BooksWebApp.Controllers
 {
-   
+
     [Authorize]
     public class UserTestController : Controller
     {

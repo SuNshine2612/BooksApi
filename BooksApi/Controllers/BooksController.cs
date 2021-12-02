@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BooksApi.Models.Global;
-using BooksApi.Models.Test;
+using BooksApi.Models.Book;
 using BooksApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Linq;
 
 namespace BooksApi.Controllers
 {
@@ -24,9 +27,86 @@ namespace BooksApi.Controllers
 
         #region Get list & detail
         [HttpGet]
-        public async Task<List<Book>> Get()
+        public async Task<IActionResult> Get()
         {
-            return await _serviceBook.GetAllAsync();
+            try
+            {
+                List<BsonDocument> pipeline = new();
+
+                #region Join With UserTest
+                BsonArray subPipelineUser = new();
+                subPipelineUser
+                .Add(
+                    new BsonDocument("$match", new BsonDocument()
+                        .Add("$expr", new BsonDocument("$eq", new BsonArray { "$_id", "$$idUser" }))
+                        .Add("IsActive", new BsonBoolean(true))
+                    )
+                )
+                .Add(
+                    new BsonDocument("$project", new BsonDocument().AddRange(new List<BsonElement>() {
+                        new BsonElement("_id", 1),
+                        new BsonElement("Code", 1),
+                        new BsonElement("FullName", 1)
+                    }))
+                );
+                #endregion
+
+                #region Join With Category
+                BsonArray subPipelineCategory = new();
+                subPipelineCategory
+                .Add(
+                    new BsonDocument("$match", new BsonDocument()
+                        .Add("$expr", new BsonDocument("$eq", new BsonArray { "$_id", "$$idCategory" }))
+                        .Add("IsActive", new BsonBoolean(true))
+                    )
+                )
+                .Add(
+                    new BsonDocument("$project", new BsonDocument().AddRange(new List<BsonElement>() {
+                        new BsonElement("_id", 1),
+                        new BsonElement("Code", 1),
+                        new BsonElement("Name", 1)
+                    }))
+                );
+                #endregion
+
+                #region Create pipeline
+                pipeline.Add(
+                    new BsonDocument("$lookup",
+                            new BsonDocument("from", "UserTest")
+                            .Add("let", new BsonDocument("idUser", "$Author"))
+                            .Add("pipeline", subPipelineUser)
+                            .Add("as", "ObjAuthors"))
+                );
+                pipeline.Add(
+                    new BsonDocument("$lookup",
+                            new BsonDocument("from", "Category")
+                            .Add("let", new BsonDocument("idCategory", "$Category"))
+                            .Add("pipeline", subPipelineCategory)
+                            .Add("as", "ObjCategories"))
+                );
+                pipeline.Add(
+                    new BsonDocument("$sort", new BsonDocument("Category", 1))    
+                );
+                #endregion
+
+                var result = await _serviceBook._collection.Aggregate<Book>(pipeline).ToListAsync();
+                result.ForEach(x =>
+                {
+                    if (x.ObjAuthors.Count > 0)
+                    {
+                        x.AuthorName = x.ObjAuthors.FirstOrDefault()?.FullName;
+                    }
+                    if (x.ObjCategories.Count > 0)
+                    {
+                        x.CategoryName = x.ObjCategories.FirstOrDefault()?.Name;
+                    }
+                });
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [Route("[action]/{id}")]
@@ -42,16 +122,20 @@ namespace BooksApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> Post([FromBody] Book data)
         {
-            
+            var session = ConfigFile.MyMongoClient.StartSession();
             try
             {
+                session.StartTransaction();
                 data.Code = data.Code.ToLower().Trim();
                 data.CreatedOn = DateTime.Now;
                 data.CreatedBy = UserClaim.UserId;
-                return await _serviceBook.InsertAsync(data);
+                var result = await _serviceBook.InsertAsync(data, session);
+                session.CommitTransaction();
+                return Ok(result);
             }
             catch(Exception ex)
             {
+                session.AbortTransaction();
                 return BadRequest(ex.Message);
             }
         }

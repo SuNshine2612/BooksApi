@@ -1,5 +1,5 @@
 ﻿using BooksApi.Models.Global;
-using BooksApi.Models.Test;
+using BooksApi.Models.Book;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -50,7 +50,7 @@ namespace BooksApi.Services
 
             try
             {
-                var claimPrincipal = context.HttpContext.User as ClaimsPrincipal;
+                var claimPrincipal = context.HttpContext.User;
                 //không phải là admin
                 if (claimPrincipal.Identity.IsAuthenticated && !UserClaim.UserId.Equals("admin_tms", StringComparison.OrdinalIgnoreCase))
                 {

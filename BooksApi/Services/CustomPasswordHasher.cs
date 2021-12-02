@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace BooksApi.Services
 {
-    /// <summary>
-    /// hash password chế biến by cuongnq
-    /// </summary>
     public static class CustomPasswordHasher
     {
         /// <summary>
@@ -83,7 +80,7 @@ namespace BooksApi.Services
         /// <returns></returns>
         public static string MD5Hash(string input)
         {
-            StringBuilder hash = new StringBuilder();
+            StringBuilder hash = new();
             MD5CryptoServiceProvider md5provider = new MD5CryptoServiceProvider();
             byte[] bytes = md5provider.ComputeHash(new UTF8Encoding().GetBytes(input));
 

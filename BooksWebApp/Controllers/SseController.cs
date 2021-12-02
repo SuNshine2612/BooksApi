@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BooksApi.Models.Test;
+using BooksApi.Models.Book;
 using BooksApi.Services;
 using BooksWebApp.Helper;
-using BooksWebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,10 +16,10 @@ namespace BooksWebApp.Controllers
     public class SseController : Controller
     {
         [NonAction]
-        private async Task<List<Book>> GetListBooks()
+        static async Task<List<Book>> GetListBooks()
         {
-
-            List<Book> _books = await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks);
+            return await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks);
+            /*List<Book> _books = await ApiHelper<List<Book>>.RunGetAsync(StaticVar.ApiUrlBooks);
             List<UserTest> _authors = await ApiHelper<List<UserTest>>.RunGetAsync(StaticVar.ApiUrlUsers);
 
             var query = from b in _books
@@ -36,7 +33,7 @@ namespace BooksWebApp.Controllers
                             AuthorName = a.FullName,
                             Price = b.Price
                         };
-            return query.ToList();
+            return query.ToList();*/
 
         }
 
@@ -70,7 +67,7 @@ namespace BooksWebApp.Controllers
         }
         public async Task<IActionResult> Process2()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (Book obj in await GetListBooks())
             {
                 string jsonBook = JsonConvert.SerializeObject(obj);

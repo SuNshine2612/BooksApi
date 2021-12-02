@@ -27,7 +27,7 @@ namespace BooksApi.Services
         {
             var modelType = typeof(T);
 
-            if(modelType != null && !String.IsNullOrEmpty(modelType.Name))
+            if(modelType != null && !string.IsNullOrEmpty(modelType.Name))
             {
                 string modelName = modelType.Name;
                 _collection = ConfigFile.MyMongoDatabase.GetCollection<T>(modelName);
@@ -394,7 +394,7 @@ namespace BooksApi.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<bool> CheckIssetByID(string id)
+        public async Task<bool> CheckIssetByID_2(string id)
         {
             if(ObjectId.TryParse(id, out ObjectId _outObject))
             {
@@ -404,6 +404,23 @@ namespace BooksApi.Services
             {
                 return await _collection.Find(Builders<T>.Filter.Eq("Code", id.ToLower())).CountDocumentsAsync() > 0;
             }
+        }
+
+        public async Task<bool> CheckIssetByID(string id)
+        {
+            filterFinal = filterBase;
+            if (ObjectId.TryParse(id, out ObjectId _outObject))
+            {
+                filterFinal &= Builders<T>.Filter.Eq("Id", _outObject);
+            }
+            else
+            {
+                filterFinal &= Builders<T>.Filter.Eq("Code", id.ToLower());
+            }
+            // Tối ưu performance hơn
+            // Any thì nó chỉ cần cursor thấy có là nó đi ra, không lấy data ra
+            var result = await _collection.Find(filterFinal).AnyAsync();
+            return result;
         }
 
         /// <summary>

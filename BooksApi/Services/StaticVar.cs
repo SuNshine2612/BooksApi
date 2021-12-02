@@ -8,14 +8,14 @@ namespace BooksApi.Services
 {
     public static class StaticVar
     {
-        public static string CookiesName = "cookies_web_tms";
-        public static string CookiesAuthenticate = "cookies_auth";
+        public const string CookiesName = "cookies_web_books";
+        public const string CookiesAuthenticate = "cookies_auth";
         public static readonly string NameMenuActive = "Scheduler";
 
         // Key session !!
         [Display(Description = "Lưu token khi login")]
-        public static string SessionUserToken = "SuSu";
-        public static string ExpiredToken = "ExpiredToken";
+        public const string SessionUserToken = "SuSu";
+        public const string ExpiredToken = "ExpiredToken";
 
         // Define Url Api !!
         public static readonly string ApiUrlBooks = "api/books";
@@ -24,6 +24,11 @@ namespace BooksApi.Services
         public static readonly string ApiUrlMenus = "api/menustest";
         public static readonly string ApiUrlSystemFunctions = "api/systemfunctionstest";
         public static readonly string ApiUrlGroups = "api/groupstest";
+        public static readonly string ApiUrlCategories = "api/categories";
+        public static readonly string ApiUrlSlides = "api/slides";
+        public static readonly string ApiUrlComments = "api/comments";
+        public static readonly string ApiUrlNews = "api/news";
+        public static readonly string ApiUrlConfigs = "api/configs";
 
         // Define string alert, action and button !!
         public static readonly string ActionCreateNew = "Thêm Mới";
@@ -48,5 +53,9 @@ namespace BooksApi.Services
         public static readonly string ClaimArrFunction = "ArrFunction";
         public static readonly string ClaimArrMenu = "ArrMenu";
         public static readonly string ClaimArrMemberGroup = "ArrMemberGroup";
+
+
+        public const string MainSlide = "Main Slide";
+        public const string SubSlide = "Sub Slide";
     }
 }

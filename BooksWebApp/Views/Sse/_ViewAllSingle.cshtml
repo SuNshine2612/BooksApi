@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BooksApi.Models.Test.Book>
+﻿@model IEnumerable<BooksApi.Models.Book.Book>
 
 <!-- DataTables -->
 <link rel="stylesheet" href="~/admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
@@ -20,7 +20,7 @@
             columns: [
                 { "data": "Code", "name": "Code", "autoWidth": true },
                 { "data": "Name", "name": "Name", "autoWidth": true },
-                { "data": "Category", "name": "Category", "autoWidth": true },
+                { "data": "CategoryName", "name": "Category", "autoWidth": true },
                 { "data": "AuthorName", "name": "AuthorName", "autoWidth": true },
                 { "data": "Price", "name": "Price", "autoWidth": true },
                 {
